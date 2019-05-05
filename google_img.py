@@ -2,9 +2,11 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time 
 import urllib.request
+import urllib.parse
 from bs4 import BeautifulSoup as bs
 import re
 import os
+import bs4.builder._htmlparser
 
 base_url_part1='https://www.google.com/search?q='
 base_url_part2='&source=lnms&tbm=isch'
@@ -42,9 +44,9 @@ class Google_crawler:
             js="document.documentElement.scrollTop=%d" %pos
             driver.execute_script(js)
             time.sleep(2)
-            html_page=driver.page_source
+            html_page=driver.page_source 
 
-            soup=bs(html_page,"html_parser")
+            soup=bs(html_page,'lxml')
             imglist=soup.find_all('img',{'class':'rg_ic rg_i'})
             for imgurl in imglist:
                 try:
