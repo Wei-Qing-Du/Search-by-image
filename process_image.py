@@ -1,7 +1,7 @@
 import cv2
 import os
 
-path ="..\\waifu2x\\images" #Target of image file
+path = input("Please input the path:")#Target of image file
 files = os.listdir(path) #Find all files in this file
 s=[]
 
@@ -15,6 +15,7 @@ for file in files:
         print("Not exist")
 image=cv2.imread(s[0])
 res=cv2.resize(image,(500,500),interpolation=cv2.INTER_CUBIC)
+cv2.startWindowThread()
 cv2.imshow('iker',res)
 cv2.waitKey(0)
-cv2.destoryAllWindows()
+cv2.destroyAllWindows()
