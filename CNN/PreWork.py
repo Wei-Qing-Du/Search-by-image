@@ -38,16 +38,15 @@ for read in s:
 #os.renames(pre_dir+'/'+"0",pre_dir+'/'+"roses")
 #os.renames(r"D:\PyCharm\KinZhang_First_ImageDetection\generate_data\0",r"D:\PyCharm\KinZhang_First_ImageDetection\generate_data\sunflowers")
 
-train_dir = r'D:\PyCharm\KinZhang_First_ImageDetection\generate_data'
+train_dir = r'C:\Users\Z97MX-GAMING\Desktop\generate_data'
 
 roses = []
 label_roses = []
 sunflowers = []
 label_sunflowers = []
 
-#step1:获取Image_to_tfrecords.py文件运行生成后的图片路径
-    #获取路径下所有的图片路径名，存放到
-    # 对应的列表中，同时贴上标签，存放到label列表中
+#step1:Get path fo images from the Image_to_tfrecords.py
+    #Store all path of images to the list and give labels that save to the label of list 
 def get_files(file_dir,ratio):
     for file in os.listdir(file_dir+'/roses'):
         roses.append(file_dir+'/roses'+'/'+file)
@@ -56,20 +55,16 @@ def get_files(file_dir,ratio):
         sunflowers.append(file_dir+'/sunflowers'+'/'+file)
         label_sunflowers.append(1)
 
-    #打印出提取图片的情况，检测是否正确提取
     print("There are %d roses\nThere are %d sunflowers\n"%(len(roses),len(sunflowers)),end="")
 
-#step2: 对生成图片路径和标签list做打乱处理把roses和sunflowers合起来组成一个list（img和lab）
-    # 合并数据numpy.hstack(tup)
-    # tup可以是python中的元组（tuple）、列表（list），或者numpy中数组（array），
-    # 函数作用是将tup在水平方向上（按列顺序）合并
-    image_list = np.hstack((roses,sunflowers))
+#step2: Combine paht and labels into one list 
+    image_list = np.hstack((roses,sunflowers)) # Let difference list to the same array with horizon.
     label_list = np.hstack((label_roses,label_sunflowers))
 
     #利用shuffle,转置，随机打乱
-    temp = np.array([image_list,label_list])    #转换成2维矩阵
+    temp = np.array([image_list,label_list])    #Trun into 2x array
     temp = temp.transpose()     #转置
-    np.random.shuffle(temp)     #按行随机打乱顺序函数
+    np.random.shuffle(temp)     #The array or list to be shuffled
     #print(temp)
     #从打乱的temp中再取出list（img和lab）
     #image_list = list(temp[:,0])
@@ -77,29 +72,28 @@ def get_files(file_dir,ratio):
     #label_list = [int(i) for i in label_list]
     #return  image_list,label_list
 
-    #将所有的img和lab转换成list
-    all_image_list = list(temp[:,0])    #取出第0列数据，即图片路径
-    all_label_list = list(temp[:,1])    #取出第1列数据，即图片标签
+    all_image_list = list(temp[:,0])   
+    all_label_list = list(temp[:,1])   
 
-    #将所得list分为两部分，一部分用来train，一部分用来测试val
-    #ratio是测试集比例
+    #Divide list to two parts whose one is for training and other is for testing
+    #ratio is ration of testing
     n_sample = len(all_label_list)
-    n_val = int(math.ceil(n_sample*ratio))  #测试样本数
-    n_train = n_sample - n_val    #训练样本数
+    n_val = int(math.ceil(n_sample*ratio))  #Get test data
+    n_train = n_sample - n_val    #Get num of train data
 
     tra_images = all_image_list[0:n_train]
     tra_labels = all_label_list[0:n_train]
-#    tra_labels = [int(float(i)) for i in tra_labels]    #转换成int数据类型
+#    tra_labels = [int(float(i)) for i in tra_labels]    #Transform to int
     tra_labels = [int(i) for i in tra_labels]
 
     val_images = all_image_list[n_train:-1]
     val_labels = all_label_list[n_train:-1]
-#    val_labels = [int(float(i)) for i in val_labels]    #转换成int数据类型
+#    val_labels = [int(float(i)) for i in val_labels]    #Transform to int
     val_labels = [int(i) for i in val_labels]
     #print(val_labels)
 
     return tra_images,tra_labels,val_images,val_labels
-
+# To be continue
 #--------------------------生成batch------------------------
 
 #step1：将上面生成的list传入get_batch（），转换类型，产生一个输入队列queue，因为img和lab是分开的
@@ -153,7 +147,7 @@ def get_batch(image,label,image_W,image_H,batch_size,capacity):
     # 获取两个batch，两个batch即为传入神经网络的数据
 
 
-"""
+
 def PreWork():
     # 对预处理的数据进行可视化，查看预处理的效果
     IMG_W = 256
@@ -200,4 +194,3 @@ def PreWork():
         coord.join(threads)
 if __name__ == '__main__':
     PreWork()
-"""
