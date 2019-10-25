@@ -16,7 +16,7 @@ def unpickle(filename):
 if not os.path.isdir("train"):
     os.mkdir("train")
 if not os.path.isdir("test"):
-    os.mkdir("train")
+    os.mkdir("test")
 
 
 #Train
