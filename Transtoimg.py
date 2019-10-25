@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import imageio
+import os
 
 
 def unpickle(filename):
@@ -10,6 +11,12 @@ def unpickle(filename):
         data = pickle.load(fo, encoding= 'latin1')
         fo.close()
     return data
+
+#Creat file of train and test
+if not os.path.isdir("train"):
+    os.mkdir("train")
+if not os.path.isdir("test"):
+    os.mkdir("train")
 
 
 #Train
