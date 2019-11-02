@@ -2,6 +2,7 @@ import os
 import numpy as np
 import math
 import tensorflow as tf
+import re
 
 # coding=utf-8
 """
@@ -38,22 +39,87 @@ for read in s:
 #os.renames(pre_dir+'/'+"0",pre_dir+'/'+"roses")
 #os.renames(r"D:\PyCharm\KinZhang_First_ImageDetection\generate_data\0",r"D:\PyCharm\KinZhang_First_ImageDetection\generate_data\sunflowers")
 
-train_dir = r'C:\Users\Z97MX-GAMING\Desktop\generate_data'
+train_dir = r'C:\Users\Z97MX-GAMING\Desktop\train'
 
-roses = []
-label_roses = []
-sunflowers = []
-label_sunflowers = []
+frist_type = []
+label_frist_type = []
+
+second_type = []
+label_second_type = []
+
+third_type = []
+label_third_type = []
+
+fourth_type = []
+label_fourth_type = []
+
+fifth_type = []
+label_fifth_type = []
+
+sixth_type = []
+label_sixth_type = []
+
+seventh_type = []
+label_seventh_type = []
+
+eightth_type = []
+label_eightth_type
+
+ninth_type = []
+label_ninth_type = []
+
+tenth_type = []
+label_tenth_type = []
+
+
+
+
 
 #step1:Get path fo images from the Image_to_tfrecords.py
     #Store all path of images to the list and give labels that save to the label of list 
 def get_files(file_dir,ratio):
-    for file in os.listdir(file_dir+'/roses'):
-        roses.append(file_dir+'/roses'+'/'+file)
-        label_roses.append(0)
-    for file in os.listdir(file_dir+'/sunflowers'):
-        sunflowers.append(file_dir+'/sunflowers'+'/'+file)
-        label_sunflowers.append(1)
+    for file in os.listdir(file_dir):
+        data_type = re.match("^\d", file)
+
+        if (label_frist_type == 0):
+            frist_type.append(file_dir+file)
+            label_frist_type.append(0)
+
+        elif (label_frist_type == 1):
+            second_type.append(file_dir+file)
+            label_second_type.append(1)
+
+        elif (label_frist_type == 2):
+            third_type.append(file_dir+file)
+            label_third_type.append(2)
+
+        elif (label_frist_type == 3):
+            fourth_type.append(file_dir+file)
+            label_fourth_type.append(3)
+
+        elif (label_frist_type == 4):
+            fifth_type.append(file_dir+file)
+            label_fifth_type.append(4)
+
+        elif (label_frist_type == 5):
+            sixth_type.append(file_dir+file)
+            label_sixth_type.append(5)
+
+        elif (label_frist_type == 6):
+            seventh_type.append(file_dir+file)
+            label_seventh_type.append(6)
+
+        elif (label_frist_type == 7):
+            eightth_type.append(file_dir+file)
+            label_eightth_type.append(7)
+
+        elif (label_frist_type == 8):
+            ninth_type.append(file_dir+file)
+            label_ninth_type.append(8)
+
+        elif (label_frist_type == 9):
+            tenth_type.append(file_dir+file)
+            label_tenth_type.append(9)            
 
     print("There are %d roses\nThere are %d sunflowers\n"%(len(roses),len(sunflowers)),end="")
 
@@ -120,10 +186,6 @@ def get_batch(image,label,image_W,image_H,batch_size,capacity):
     image = tf.image.per_image_standardization(image)   #Standard image after be resized
 #    image = tf.image.resize_image_with_crop_or_pad(image, image_W, image_H)
     # if you want to test the generated batches of images, you might want to comment the following line.
-    # 如果想看到正常的图片，请注释掉105行（标准化）和 121行（image_batch = tf.cast(image_batch, tf.float32)）
-    # 训练时不要注释掉！
-#    image = tf.image.per_image_standardization(image)
-#具体解释地址看该链接代码：https://github.com/kevin28520/My-TensorFlow-tutorials/blob/master/01%20cats%20vs%20dogs/input_data.py
 
     #step4:Make the batch
     # image_batch: 4D tensor [batch_size, width, height, 3],dtype=tf.float32
@@ -143,12 +205,12 @@ def get_batch(image,label,image_W,image_H,batch_size,capacity):
 
 
 def PreWork():
-    # 对预处理的数据进行可视化，查看预处理的效果
+    # See performance of prwork
     IMG_W = 256
     IMG_H = 256
     BATCH_SIZE = 6
     CAPACITY = 64
-    train_dir = 'F:/Python/PycharmProjects/DeepLearning/CK+_part'
+    #train_dir = 'F:/Python/PycharmProjects/DeepLearning/CK+_part'
     # image_list, label_list, val_images, val_labels = get_file(train_dir)
     image_list, label_list = get_file(train_dir)
     image_batch, label_batch = get_batch(image_list, label_list, IMG_W, IMG_H, BATCH_SIZE, CAPACITY)
@@ -156,25 +218,15 @@ def PreWork():
     lists = ('angry', 'disgusted', 'fearful', 'happy', 'sadness', 'surprised')
     with tf.Session() as sess:
         i = 0
-        coord = tf.train.Coordinator()  # 创建一个线程协调器，用来管理之后在Session中启动的所有线程
+        coord = tf.train.Coordinator()  # Creat the thread manager
         threads = tf.train.start_queue_runners(coord=coord)
         try:
             while not coord.should_stop() and i < 1:
-                # 提取出两个batch的图片并可视化。
-                img, label = sess.run([image_batch, label_batch])  # 在会话中取出img和label
+                # Get two batches to be showed on the image.
+                img, label = sess.run([image_batch, label_batch])  # Get img and label from the session.
                 # img = tf.cast(img, tf.uint8)
-                '''
-                1、range()返回的是range object，而np.arange()返回的是numpy.ndarray()
-                range(start, end, step)，返回一个list对象，起始值为start，终止值为end，但不含终止值，步长为step。只能创建int型list。
-                arange(start, end, step)，与range()类似，但是返回一个array对象。需要引入import numpy as np，并且arange可以使用float型数据。
 
-                2、range()不支持步长为小数，np.arange()支持步长为小数
-
-                3、两者都可用于迭代
-                range尽可用于迭代，而np.nrange作用远不止于此，它是一个序列，可被当做向量使用。
-                '''
                 for j in np.arange(BATCH_SIZE):
-                    # np.arange()函数返回一个有终点和起点的固定步长的排列
                     print('label: %d' % label[j])
                     plt.imshow(img[j, :, :, :])
                     title = lists[int(label[j])]
