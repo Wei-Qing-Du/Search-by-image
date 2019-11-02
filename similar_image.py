@@ -65,15 +65,32 @@ def image_similarity_vectors_via_numpy(image1, image2):
     res = dot(a / a_norm, b / b_norm)
     return res
 
-art_models = ['models_anime_style_art', 'models_anime_style_art_rgb', 'models_cunet_art', 'models_upconv_7_art', 
-                'models_vgg_7_art', 'models_vgg_7_art_y']
-#art_models = ['models_anime_style_art', 'models_cunet_art']
+def psnr(img1, img2):
+    mse = np.mean( (np.array(img1) - np.array(img2)) ** 2 )
+    if mse == 0:
+        return 100
+
+    PIXEL_MAX = 255.0
+    return 20 * math.log10(PIXEL_MAX / math.sqrt(mse))
+
+
+#art_models = ['models_anime_style_art', 'models_anime_style_art_rgb', 'models_cunet_art', 'models_upconv_7_art', 
+               # 'models_vgg_7_art', 'models_vgg_7_art_y']
+art_models = ['models_anime_style_art']
 photo_models = ['models_photo', 'models_upconv_7_photo', 'models_vgg_7_photo']
 dis =[]
 dis_image = dict()
 base_path = 'C:\\Users\\Willy\\Desktop\\'
-target_image = 'C:\\Users\\Willy\\Desktop\\Illustration, upsample x2, denoise=100.png'#phash('C:\\Users\\Willy\\Desktop\\Illustration, upsample x2, denoise=100.png')
-img = Image.open(target_image)
+target_image = 'C:\\Users\\Willy\\Desktop\\output_cpu.png'#phash('C:\\Users\\Willy\\Desktop\\Illustration, upsample x2, denoise=100.png')
+
+metrics = input("Please input your metric:")
+
+if(metrics == "distance"):
+    img = Image.open(target_image)
+elif(metrics == "psnr"):
+    img = cv2.imread(target_image)
+    img = cv2.resize(img, (800, 558))
+
 
 for models_path in art_models:
     i = 0
@@ -83,8 +100,14 @@ for models_path in art_models:
         files = os.listdir(base_path) #Find all files in this file
         for image_art in files:
             image_art = base_path + "\\" + image_art
-            img1 = Image.open(image_art)
-            dis.append(image_similarity_vectors_via_numpy(img, img1)) #hammingDistance(int(target_image, 16), int(phash(image_art), 16)"")
+            if(metrics == "distance"):
+                img1 = Image.open(image_art)
+                dis.append(image_similarity_vectors_via_numpy(img, img1)) #hammingDistance(int(target_image, 16), int(phash(image_art), 16)"")
+            elif(metrics == "psnr"):
+                img1 = cv2.imread(image_art)
+                #img1 = cv2.resize(img1, (800, 558)) #For difference size
+                dis.append(psnr(img, img1))
+
             dis_image[files[i]] = dis[i]
             i = i + 1
     else:
