@@ -3,6 +3,8 @@ import numpy as np
 import math
 import tensorflow as tf
 import re
+import matplotlib.pyplot as plt
+import cv2
 
 # coding=utf-8
 """
@@ -32,12 +34,6 @@ for read in s:
     cv2.imwrite(store_path+'\\'+read, res)
 """
 
-#将上图中的两种花的0,1分类改成sunflowers和roses两个文件夹
-#pre_dir = r"D:\PyCharm\KinZhang_First_ImageDetection\generate_data"
-
-#os.renames(pre_dir+'/'+"1",pre_dir+'/'+"sunflowers")
-#os.renames(pre_dir+'/'+"0",pre_dir+'/'+"roses")
-#os.renames(r"D:\PyCharm\KinZhang_First_ImageDetection\generate_data\0",r"D:\PyCharm\KinZhang_First_ImageDetection\generate_data\sunflowers")
 
 train_dir = r'C:\Users\Z97MX-GAMING\Desktop\train'
 
@@ -63,7 +59,7 @@ seventh_type = []
 label_seventh_type = []
 
 eightth_type = []
-label_eightth_type
+label_eightth_type = []
 
 ninth_type = []
 label_ninth_type = []
@@ -77,55 +73,57 @@ label_tenth_type = []
 
 #step1:Get path fo images from the Image_to_tfrecords.py
     #Store all path of images to the list and give labels that save to the label of list 
-def get_files(file_dir,ratio):
+def get_files(file_dir, ratio):
     for file in os.listdir(file_dir):
-        data_type = re.match("^\d", file)
+        pattern = re.compile("^\d")
+        data_type = pattern.findall(file)
 
-        if (label_frist_type == 0):
-            frist_type.append(file_dir+file)
+        if (data_type[0] == '0'):
+            frist_type.append(file_dir+'\\'+file)
             label_frist_type.append(0)
 
-        elif (label_frist_type == 1):
-            second_type.append(file_dir+file)
+        elif (data_type[0] == '1'):
+            second_type.append(file_dir+'\\'+file)
             label_second_type.append(1)
 
-        elif (label_frist_type == 2):
-            third_type.append(file_dir+file)
+        elif (data_type[0] == '2'):
+            third_type.append(file_dir+'\\'+file)
             label_third_type.append(2)
 
-        elif (label_frist_type == 3):
-            fourth_type.append(file_dir+file)
+        elif (data_type[0] == '3'):
+            fourth_type.append(file_dir+'\\'+file)
             label_fourth_type.append(3)
 
-        elif (label_frist_type == 4):
-            fifth_type.append(file_dir+file)
+        elif (data_type[0] == '4'):
+            fifth_type.append(file_dir+'\\'+file)
             label_fifth_type.append(4)
 
-        elif (label_frist_type == 5):
-            sixth_type.append(file_dir+file)
+        elif (data_type[0] == '5'):
+            sixth_type.append(file_dir+'\\'+file)
             label_sixth_type.append(5)
 
-        elif (label_frist_type == 6):
-            seventh_type.append(file_dir+file)
+        elif (data_type[0] == '6'):
+            seventh_type.append(file_dir+'\\'+file)
             label_seventh_type.append(6)
 
-        elif (label_frist_type == 7):
-            eightth_type.append(file_dir+file)
+        elif (data_type[0] == '7'):
+            eightth_type.append(file_dir+'\\'+file)
             label_eightth_type.append(7)
 
-        elif (label_frist_type == 8):
-            ninth_type.append(file_dir+file)
+        elif (data_type[0] == '8'):
+            ninth_type.append(file_dir+'\\'+file)
             label_ninth_type.append(8)
 
-        elif (label_frist_type == 9):
-            tenth_type.append(file_dir+file)
+        elif (data_type[0] == '9'):
+            tenth_type.append(file_dir+'\\'+file)
             label_tenth_type.append(9)            
-
-    print("There are %d roses\nThere are %d sunflowers\n"%(len(roses),len(sunflowers)),end="")
+        print("Write file %s" %file)
 
 #step2: Combine paht and labels into one list 
-    image_list = np.hstack((roses,sunflowers)) # Let difference list to the same array with horizon.
-    label_list = np.hstack((label_roses,label_sunflowers))
+    image_list = np.hstack((frist_type,second_type,third_type,fourth_type,fifth_type,sixth_type,
+                            seventh_type,eightth_type,ninth_type,tenth_type)) # Let difference list to the same array with horizon.
+    label_list = np.hstack((label_frist_type,label_second_type,label_third_type,label_fourth_type,label_fifth_type,label_sixth_type,
+                            label_seventh_type,label_eightth_type,label_ninth_type,label_tenth_type))
 
     #利用shuffle,转置，随机打乱
     temp = np.array([image_list,label_list])    #Trun into 2x array
@@ -179,7 +177,7 @@ def get_batch(image,label,image_W,image_H,batch_size,capacity):
 
     #step2:Decode the images，that must use same type。
 #    image = tf.image.decode_image(image_contents,channels=3)
-    image = tf.image.decode_jpeg(image_contents, channels=3)
+    image =tf.image.decode_jpeg(image_contents, channels=3)#cv2.imread(image_contents) 
 
     #step3:data preprocession
     image = tf.image.resize_image_with_crop_or_pad(image,image_W,image_H)
@@ -196,8 +194,8 @@ def get_batch(image,label,image_W,image_H,batch_size,capacity):
                                               capacity =capacity)
     #Reshape label，row size is [batch_size]
     label_batch =tf.reshape(label_batch,[batch_size])
-#    image_batch = tf.cast(image_batch, tf.uint8)    # 显示彩色图像
-    image_batch = tf.cast(image_batch,tf.float32)     #显示灰度图像
+    image_batch = tf.cast(image_batch, tf.uint8)    # 显示彩色图像
+    #image_batch = tf.cast(image_batch,tf.float32)     #显示灰度图像
 
     return image_batch,label_batch
     # Get two batches that are introduced into the CNN.
@@ -206,16 +204,16 @@ def get_batch(image,label,image_W,image_H,batch_size,capacity):
 
 def PreWork():
     # See performance of prwork
-    IMG_W = 256
-    IMG_H = 256
+    IMG_W = 32
+    IMG_H = 32
     BATCH_SIZE = 6
     CAPACITY = 64
     #train_dir = 'F:/Python/PycharmProjects/DeepLearning/CK+_part'
     # image_list, label_list, val_images, val_labels = get_file(train_dir)
-    image_list, label_list = get_file(train_dir)
+    image_list, label_list = get_files(train_dir)
     image_batch, label_batch = get_batch(image_list, label_list, IMG_W, IMG_H, BATCH_SIZE, CAPACITY)
     print(label_batch.shape)
-    lists = ('angry', 'disgusted', 'fearful', 'happy', 'sadness', 'surprised')
+    lists = ('0', '1', '2', '3', '4', '5','6','7','8','9')
     with tf.Session() as sess:
         i = 0
         coord = tf.train.Coordinator()  # Creat the thread manager
@@ -228,7 +226,7 @@ def PreWork():
 
                 for j in np.arange(BATCH_SIZE):
                     print('label: %d' % label[j])
-                    plt.imshow(img[j, :, :, :])
+                    plt.imshow(img.eval())
                     title = lists[int(label[j])]
                     plt.title(title)
                     plt.show()
@@ -239,4 +237,4 @@ def PreWork():
             coord.request_stop()
         coord.join(threads)
 if __name__ == '__main__':
-    PreWork()
+    #PreWork()
