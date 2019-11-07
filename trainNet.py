@@ -8,15 +8,15 @@ from CNN.PreWork import get_files,get_batch
 from CNN.CNNModel import deep_CNN,losses,training,evaluation
 
 
-#变量申明
-N_CLASSES = 2   #roses,sunflowers
-#IMG_W = 28  # resize图像，太大的话训练时间久
+
+N_CLASSES = 2   #images classes
+#IMG_W = 28  # resize image
 IMG_W = 32
 #IMG_H = 28
 IMG_H = 32
-BATCH_SIZE = 20 #每个batch要放多少张图片
-CAPACITY = 200  #一个队列最大多少
-MAX_STEP = 1000    #一般大于10K
+BATCH_SIZE = 20 #how many images put per batch
+CAPACITY = 200  #size of queue
+MAX_STEP = 1000    
 #MAX_STEP = 200
 learning_rate = 0.0001  #
 
