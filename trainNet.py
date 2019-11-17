@@ -20,23 +20,23 @@ MAX_STEP = 1000
 #MAX_STEP = 200
 learning_rate = 0.0001  #
 
-#获取批次batch
-train_dir = r'D:\PyCharm\KinZhang_First_ImageDetection\generate_data'   #训练样本的读入路径
+#get batch
+train_dir = r'C:\Users\Z97MX-GAMING\Desktop\train'   #training samples path
 
-logs_train_dir = r'D:\PyCharm\KinZhang_First_ImageDetection\generate_data/1'  #logs存储路径
+logs_train_dir = r'C:\Users\Z97MX-GAMING\Desktop\train_log'  #logs path
 #logs_test_dir = r'D:\PyCharm\KinZhang_First_ImageDetection\generate_data'
 
-train,train_label,val,val_label = get_files(train_dir,0.2)      #验证集比例20%
+train,train_label,val,val_label = get_files(train_dir,0.2)      #20% validation set
 
 
-#训练数据及标签
+#training data and labels
 train_batch,train_label_batch = get_batch(train,train_label,IMG_W,IMG_H,BATCH_SIZE,CAPACITY)
 
-#测试数据及标签
+#validation data and labels
 val_batch,val_label_batch = get_batch(val,val_label,IMG_W,IMG_H,BATCH_SIZE,CAPACITY)
 
 #训练操作定义
-train_logits = deep_CNN(train_batch,BATCH_SIZE,N_CLASSES)
+train_logits = deep_CNN(train_batch,BATCH_SIZE,N_CLASSES)#Not finish
 train_loss = losses(train_logits,train_label_batch)
 train_op = training(train_loss,learning_rate)
 train_acc = evaluation(train_logits,train_label_batch)

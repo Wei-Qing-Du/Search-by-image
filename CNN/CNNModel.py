@@ -54,30 +54,31 @@ def max_pooling(x,name):    #2×2
     # 池化层输出图像的大小为(W-f)/stride+1，向上取整
     return tf.nn.max_pool(x,ksize=[1,3,3,1],strides=[1,2,2,1],padding='SAME',name=name)
 
-#一个简单的卷积神经网络，卷积+池化层×2，全连接层×2，最后一个softmax层做分类
-#64个3×3的卷积核（3通道），padding='SAME'，表示padding后卷积的图与原图尺寸一致，激活函数relu()
+#A samole CNN，conv and pool layers ×2，full connect layer ×2，use softmax to classified
+#64 3×3 conv layers（3 channels），padding='SAME'，size of image is same ad orignal one after conv
 def deep_CNN(images,batch_size,n_classes):
     with tf.variable_scope('conv1') as scope:
+        #Frist conv layer 
         w_conv1 = tf.Variable(weight_variable([3,3,3,64],1.0),name='weights',dtype=tf.float32)
         b_conv1 = tf.Variable(bias_variable([64]),name='biases',dtype=tf.float32)
-        h_conv1 = tf.nn.relu(conv2d(images,w_conv1)+b_conv1,name='conv1')   #得到256*256*64（假设原始图像256*256）
+        h_conv1 = tf.nn.relu(conv2d(images,w_conv1)+b_conv1,name='conv1')   #weight * x(num of conv) + bias
 
-    #第一层池化层
-    #3*3最大池化，步长strides为2，池化后执行lrn()操作，局部响应归一化，增强了模型的泛化能力。
-    #
+    #Frist max pool layer
+    #3*3 pool layer，strides is 2。
+    #tf.nn.lrn is Local Response Normalization
     with tf.variable_scope('pooling1_lrn') as scope:
-        pool1 = max_pooling(h_conv1,'pooling1')     #得到128*128*64
+        pool1 = max_pooling(h_conv1,'pooling1')     #128*128*64
         norm1 = tf.nn.lrn(pool1,depth_radius=4,bias=1.0,alpha=0.001/9.0,beta=0.75,name='norm1')
 
-    #第二层卷积
-    #32个3*3的卷积核（32个通道），padding='SAME'，表示padding后卷积的图与原图尺寸一致，激活函数relu
+    #Second conv layer
+    #32 3×3 conv layers（3 channels），padding='SAME'，size of image is same ad orignal one after conv
     with tf.variable_scope('conv2') as scope:
         w_conv2 = tf.Variable(weight_variable([3,3,64,32],0.1),name='weights',dtype=tf.float32)
         b_conv2 = tf.Variable(bias_variable([32]),name='biases',dtype=tf.float32)   #32个偏置值
         h_conv2 = tf.nn.relu(conv2d(norm1,w_conv2)+b_conv2,name='conv2')
 
-    #第二层池化层
-    #3*3最大池化，步长strides为2,池化后执行lrn()操作
+    #Second max pool layer
+    #3*3 pool layer，strides is 2。
     with tf.variable_scope('pooling2_lrn') as scope:
         pool2 = max_pooling(h_conv2,'pooling2')
         norm2 = tf.nn.lrn(pool2,depth_radius=4,bias=1.0,alpha=0.001/9.0,beta=0.75,name='norm2')
