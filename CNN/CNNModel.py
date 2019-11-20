@@ -58,7 +58,7 @@ def max_pooling(x,name):    #2×2
 #64 3×3 conv layers（3 channels），padding='SAME'，size of image is same ad orignal one after conv
 def deep_CNN(images,batch_size,n_classes):
     with tf.variable_scope('conv1') as scope:
-        #Frist conv layer 
+        #Frist conv layer patch 3*3, in size 3, out size 64
         w_conv1 = tf.Variable(weight_variable([3,3,3,64],1.0),name='weights',dtype=tf.float32)
         b_conv1 = tf.Variable(bias_variable([64]),name='biases',dtype=tf.float32)
         h_conv1 = tf.nn.relu(conv2d(images,w_conv1)+b_conv1,name='conv1')   #weight * x(num of conv) + bias
@@ -70,8 +70,8 @@ def deep_CNN(images,batch_size,n_classes):
         pool1 = max_pooling(h_conv1,'pooling1')     #128*128*64
         norm1 = tf.nn.lrn(pool1,depth_radius=4,bias=1.0,alpha=0.001/9.0,beta=0.75,name='norm1')
 
-    #Second conv layer
-    #32 3×3 conv layers（3 channels），padding='SAME'，size of image is same ad orignal one after conv
+    #Second conv layer patch 3*3, in size 64, out size 32
+    #32 3×3 conv layers，padding='SAME'，size of image is same ad orignal one after conv
     with tf.variable_scope('conv2') as scope:
         w_conv2 = tf.Variable(weight_variable([3,3,64,32],0.1),name='weights',dtype=tf.float32)
         b_conv2 = tf.Variable(bias_variable([32]),name='biases',dtype=tf.float32)   #32个偏置值
@@ -83,20 +83,20 @@ def deep_CNN(images,batch_size,n_classes):
         pool2 = max_pooling(h_conv2,'pooling2')
         norm2 = tf.nn.lrn(pool2,depth_radius=4,bias=1.0,alpha=0.001/9.0,beta=0.75,name='norm2')
 
-    #第三层卷积层
-    #16个3*3卷积核（16个通道），padding='SAME'，表示padding后卷积的图与原图尺寸一致，激活函数relu
+    #Third conv layer patch 3*3, in size 32, out size 16
+    #16 3*3 conv layers，padding='SAME'，size of image is same ad orignal one after conv
     with tf.variable_scope('conv3') as scope:
         w_conv3 = tf.Variable(weight_variable([3,3,32,16],0.1),name='weights',dtype=tf.float32)
         b_conv3 = tf.Variable(bias_variable([16]),name='biases',dtype=tf.float32)
         h_conv3 = tf.nn.relu(conv2d(norm2,w_conv3)+b_conv3,name='conv3')
 
-    #第三层池化层
-    ##3*3最大池化，步长strides为2,池化后执行lrn()操作
+    #Third max pool layer
+    #3*3 pool layer，strides is 2。
     with tf.variable_scope('pooling3_lrn') as scope:
         pool3 = max_pooling(h_conv3,'pooling3')
         norm3 = tf.nn.lrn(pool3,depth_radius=4,bias=1.0,alpha=0.001/9.0,beta=0.75,name='norm3')
 
-#   第四层卷积层（后加的）
+#   Fourth conv layer patch 3*3, in size 16, out size 8
     with tf.variable_scope('conv4') as scope:
         w_conv4 = tf.Variable(weight_variable([3,3,16,8],0.1),name='weights',dtype=tf.float32)
         b_conv4 = tf.Variable(bias_variable([8]),name='biases',dtype=tf.float32)
