@@ -74,7 +74,7 @@ def deep_CNN(images,batch_size,n_classes):
     #32 3×3 conv layers，padding='SAME'，size of image is same ad orignal one after conv
     with tf.variable_scope('conv2') as scope:
         w_conv2 = tf.Variable(weight_variable([3,3,64,32],0.1),name='weights',dtype=tf.float32)
-        b_conv2 = tf.Variable(bias_variable([32]),name='biases',dtype=tf.float32)   #32个偏置值
+        b_conv2 = tf.Variable(bias_variable([32]),name='biases',dtype=tf.float32)   #32 biases
         h_conv2 = tf.nn.relu(conv2d(norm1,w_conv2)+b_conv2,name='conv2')
 
     #Second max pool layer
@@ -106,21 +106,19 @@ def deep_CNN(images,batch_size,n_classes):
         pool4 = max_pooling(h_conv4,'pooling4')
         norm4 = tf.nn.lrn(pool4,depth_radius=4,bias=1.0,alpha=0.001/9.0,beta=0.75,name='norm4')
 
-    #第四层，全连接层-1
-    #256个神经元，将之前pool层的输出reshape成一行，激活函数relu（）
+    #Full connect 256 neurons layer-1
     with tf.variable_scope('local5') as scope:
-        reshape = tf.reshape(norm4,shape=[batch_size,-1])
+        reshape = tf.reshape(norm4,shape=[batch_size,-1])#Reshape to one dimension array. 
         dim = reshape.get_shape()[1].value
 #        w_fc1 = tf.Variable(weight_variable([dim,256],0.005), name='weights',dtype=tf.float32)
         w_fc1 = tf.Variable(tf.truncated_normal(shape=[dim,256],stddev=0.005,dtype=tf.float32),
-                            name='weights',dtype=tf.float32)
+                            name='weights',dtype=tf.float32)#Init weights
 #        b_fc1 = tf.Variable(bias_variable([256]),name='biases',dtype=tf.float32)
         b_fc1 = tf.Variable(tf.constant(value=0.1,dtype=tf.float32,shape=[256]),
-                            name='biases',dtype=tf.float32)
-        h_fc1 = tf.nn.relu(tf.matmul(reshape,w_fc1)+b_fc1,name=scope.name)
+                            name='biases',dtype=tf.float32)#Init biases that isn't changed.
+        h_fc1 = tf.nn.relu(tf.matmul(reshape,w_fc1)+b_fc1,name=scope.name)#Multiply two matrices
 
-    #第五层，全连接层-2
-    #256个神经元，激活函数relu()
+    #Full connect 256 neurons layer-2
     with tf.variable_scope('local6') as scope:
 #        w_fc2 = tf.Variable(weight_variable([256,256],0.005),name='weights',dtype=tf.float32)
         w_fc2 = tf.Variable(tf.truncated_normal(shape=[256,256],stddev=0.005,dtype=tf.float32),
@@ -130,10 +128,10 @@ def deep_CNN(images,batch_size,n_classes):
                             name='biases',dtype=tf.float32)
         h_fc2 = tf.nn.softmax(tf.matmul(h_fc1,w_fc2)+b_fc2,name=scope.name)
 
-    #对卷积结果进行Dropout操作
+    #Dropout to the result of CNN.
     h_fc2_dropout = tf.nn.dropout(h_fc2,0.5)
 
-    #softmax回归层
+    #softmax to score every classes.
     with tf.variable_scope('softmax_liner') as scope:
         weights = tf.Variable(tf.truncated_normal(shape=[256,n_classes],stddev=0.005,dtype=tf.float32)
                               ,name='softmax_liner',dtype=tf.float32)
@@ -142,30 +140,28 @@ def deep_CNN(images,batch_size,n_classes):
         softmax_liner = tf.add(tf.matmul(h_fc2_dropout,weights),biases,name='softmax_liner')
     return softmax_liner
 
-#loss计算
-    #传入参数：logits，网络计算输出值。labels，真实值，在这里是0或1
-    #返回参数：loss，损失值
+    #logits，softmax value。labels are correct classes
 def losses(logits,lablels):
     with tf.variable_scope('loss') as scope:
         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,labels=lablels,
                                                                        name='xentropy_per_example')
         loss = tf.reduce_mean(cross_entropy,name='loss')
-        tf.summary.scalar(scope.name+'/loss',loss)
+        tf.summary.scalar(scope.name+'/loss',loss)# To visualize data.
     return loss
 
 #loss损失值优化
 
 def training(loss,learning_rate):
     with tf.name_scope('optimizer'):
-        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)#Optimizer that implements the Adam algorithm.
         global_step = tf.Variable(0,name='global_step',trainable=False)
         train_op = optimizer.minimize(loss,global_step=global_step)
     return train_op
 
-#评价计算/准确率计算
+
 def evaluation(logits,labels):
     with tf.variable_scope('accuracy') as scope:
-        correct = tf.nn.in_top_k(logits,labels,1)
+        correct = tf.nn.in_top_k(logits,labels,1)#Compare the prediction to the target 
         correct = tf.cast(correct,tf.float16)
         accuracy = tf.reduce_mean(correct)
         tf.summary.scalar(scope.name+'/accuracy',accuracy)

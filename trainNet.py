@@ -9,7 +9,7 @@ from CNN.CNNModel import deep_CNN,losses,training,evaluation
 
 
 
-N_CLASSES = 2   #images classes
+N_CLASSES = 10   #images classes
 #IMG_W = 28  # resize image
 IMG_W = 32
 #IMG_H = 28
@@ -36,7 +36,7 @@ train_batch,train_label_batch = get_batch(train,train_label,IMG_W,IMG_H,BATCH_SI
 val_batch,val_label_batch = get_batch(val,val_label,IMG_W,IMG_H,BATCH_SIZE,CAPACITY)
 
 #训练操作定义
-train_logits = deep_CNN(train_batch,BATCH_SIZE,N_CLASSES)#Not finish
+train_logits = deep_CNN(train_batch,BATCH_SIZE,N_CLASSES)
 train_loss = losses(train_logits,train_label_batch)
 train_op = training(train_loss,learning_rate)
 train_acc = evaluation(train_logits,train_label_batch)
@@ -49,7 +49,7 @@ test_op = training(test_loss,learning_rate)
 test_acc = evaluation(test_logits,val_label_batch)
 
 #这个是log汇总记录
-summary_op = tf.summary.merge_all()
+summary_op = tf.summary.merge_all()#Not finish
 
 #产生一个会话
 sess = tf.Session()
