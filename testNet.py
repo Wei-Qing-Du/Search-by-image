@@ -7,38 +7,36 @@ from CNNModel.CNNModel import deep_CNN
 from CNNModel.PreWork import get_files
 
 #=======================================================================
-#获取一张图片
-def get_one_image(train):
-    #输入参数：train,训练图片的路径
-    #返回参数：image，从训练图片中随机抽取一张图片
+#Get a image
+def get_one_image(train):# Train is a path
     n = len(train)
     ind = np.random.randint(0, n)
-    img_dir = train[ind]   #随机选择测试的图片
+    img_dir = train[ind]   #Choice a image randomly
 
     img = Image.open(img_dir)
     plt.imshow(img)
     plt.show()
-    imag = img.resize([256, 256])  #由于图片在预处理阶段以及resize，因此该命令可略
+    imag = img.resize([32, 32])
     image = np.array(imag)
     return image
 
 #--------------------------------------------------------------------
-#测试图片
+#Test image
 def evaluate_one_image(image_array):
     with tf.Graph().as_default():
        BATCH_SIZE = 1
-       N_CLASSES = 2
+       N_CLASSES = 10
 
-       image = tf.cast(image_array, tf.float32)
-       image = tf.image.per_image_standardization(image)
+       image = tf.cast(image_array, tf.float32)#Change data type
+       image = tf.image.per_image_standardization(image)#Limit pixel from the image
        #print(str(image))
-       image = tf.reshape(image, [1, 256, 256, 3])
+       image = tf.reshape(image, [1, 32, 32, 3])
 
-       logit = deep_CNN(image,BATCH_SIZE,N_CLASSES)
+       logit = deep_CNN(image,BATCH_SIZE,N_CLASSES)#Model net
 
        logit = tf.nn.softmax(logit)
 
-       x = tf.placeholder(tf.float32, shape=[256, 256, 3])
+       x = tf.placeholder(tf.float32, shape=[32, 32, 3])
 
 
        # you need to change the directories to yours.
@@ -61,15 +59,16 @@ def evaluate_one_image(image_array):
 
            prediction = sess.run(logit, feed_dict={x: image_array})
            max_index = np.argmax(prediction)
-           if max_index==0:
-               print('This is a roses with possibility %.6f' %prediction[:, 0])
-           else:
+           if max_index >= 0:
+               print('This is a roses with possibility %.6f' %prediction[:, max_index])
+            """
+           elif max_index==0:
                print('This is a sunflowers with possibility %.6f' %prediction[:, 1])
-           #elif max_index==2:
-           #    print('This is a poodle with possibility %.6f' %prediction[:, 2])
-           #else:
-           #    print('This is a qiutian with possibility %.6f' %prediction[:, 3])
-
+           elif max_index==2:
+               print('This is a poodle with possibility %.6f' %prediction[:, 2])
+           else:
+               print('This is a qiutian with possibility %.6f' %prediction[:, 3])
+            """
 #------------------------------------------------------------------------
 
 if __name__ == '__main__':

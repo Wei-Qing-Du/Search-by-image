@@ -149,7 +149,6 @@ def losses(logits,lablels):
         tf.summary.scalar(scope.name+'/loss',loss)# To visualize data.
     return loss
 
-#loss损失值优化
 
 def training(loss,learning_rate):
     with tf.name_scope('optimizer'):
@@ -162,7 +161,7 @@ def training(loss,learning_rate):
 def evaluation(logits,labels):
     with tf.variable_scope('accuracy') as scope:
         correct = tf.nn.in_top_k(logits,labels,1)#Compare the prediction to the target 
-        correct = tf.cast(correct,tf.float16)
+        correct = tf.cast(correct,tf.float16)#Change data type
         accuracy = tf.reduce_mean(correct)
         tf.summary.scalar(scope.name+'/accuracy',accuracy)
     return accuracy
