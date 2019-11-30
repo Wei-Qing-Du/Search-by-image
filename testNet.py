@@ -73,7 +73,7 @@ def evaluate_one_image(image_array):
 
 if __name__ == '__main__':
 
-    train_dir = r'D:\PyCharm\KinZhang_First_ImageDetection\generate_data'
+    train_dir = r'C:\Users\Z97MX-GAMING\Desktop\train'
     train, train_label, val, val_label = get_files(train_dir, 0.3)
     img = get_one_image(val)  #通过改变参数train or val，进而验证训练集或测试集
     #print(str(img))
