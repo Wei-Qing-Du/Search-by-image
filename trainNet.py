@@ -35,29 +35,29 @@ train_batch,train_label_batch = get_batch(train,train_label,IMG_W,IMG_H,BATCH_SI
 #validation data and labels
 val_batch,val_label_batch = get_batch(val,val_label,IMG_W,IMG_H,BATCH_SIZE,CAPACITY)
 
-#训练操作定义
+#About training
 train_logits = deep_CNN(train_batch,BATCH_SIZE,N_CLASSES)
 train_loss = losses(train_logits,train_label_batch)
 train_op = training(train_loss,learning_rate)
 train_acc = evaluation(train_logits,train_label_batch)
 
 
-#测试操作定义
+#About testing
 test_logits = deep_CNN(val_batch,BATCH_SIZE,N_CLASSES)
 test_loss = losses(test_logits,val_label_batch)
 test_op = training(test_loss,learning_rate)
 test_acc = evaluation(test_logits,val_label_batch)
 
-#这个是log汇总记录
-summary_op = tf.summary.merge_all()#Not finish
+#Log report
+summary_op = tf.summary.merge_all()#About visualization
 
-#产生一个会话
+
 sess = tf.Session()
-#产生一个writer来写log文件
+#Make a writer to write log
 train_writer = tf.summary.FileWriter(logs_train_dir,sess.graph)
 #val_writer = tf.summary.FileWriter(logs_test_dir, sess.graph)
 saver = tf.train.Saver()
-#所有节点初始化
+
 sess.run(tf.global_variables_initializer())
 #队列监控
 coord =tf.train.Coordinator()
@@ -76,24 +76,22 @@ for step in range(MAX_STEP):
 '''
 '''
 '''
-#进行batch的训练
+#Training each batches
 try:
-    #执行MAX_STEP步的训练，一步一个batch
     for step in np.arange(MAX_STEP):
         if coord.should_stop():
             break
-        #启动以下操作节点，
 
         _,tra_loss,tra_acc = sess.run([train_op,train_loss,train_acc])
         #_, test_loss, test_acc = sess.run([test_op, test_loss, test_acc])
 
-        #每隔50步打印一次当前的loss以及acc，同时记录log，写入writer
+        #Print the loss and accuracy per 50 steps; meanwhile, write the log to the writer
         if step % 10 == 0:
             print('step %d,train loss = %.2f,train accuracy = %.2f%%' %(step,tra_loss,tra_acc*100))
             #print('step %d,test loss = %.2f,test accuracy = %.2f%%' % (step, test_loss, test_acc * 100))
             summary_str = sess.run(summary_op)
             train_writer.add_summary(summary_str,step)
-        #每隔100步，保存一次训练好的模型
+        #Store the model per 100 steps
         if (step+1) == MAX_STEP:
             checkpoint_path =os.path.join(logs_train_dir,'model.ckpt')
             saver.save(sess,checkpoint_path,global_step=step)
@@ -104,5 +102,5 @@ except tf.errors.OutOfRangeError:
 finally:
     coord.request_stop()
 
-coord.join(threads)    # 把开启的线程加入主线程，等待threads结束
+coord.join(threads)
 sess.close()
