@@ -1,0 +1,8 @@
+D:\Search-by-image\UI\SearchUI\SearchUI\bin\Release\SearchUI.exe.config
+D:\Search-by-image\UI\SearchUI\SearchUI\bin\Release\SearchUI.exe
+D:\Search-by-image\UI\SearchUI\SearchUI\bin\Release\SearchUI.pdb
+D:\Search-by-image\UI\SearchUI\SearchUI\obj\Release\SearchUI.csprojAssemblyReference.cache
+D:\Search-by-image\UI\SearchUI\SearchUI\obj\Release\SearchUI.Properties.Resources.resources
+D:\Search-by-image\UI\SearchUI\SearchUI\obj\Release\SearchUI.csproj.GenerateResource.cache
+D:\Search-by-image\UI\SearchUI\SearchUI\obj\Release\SearchUI.exe
+D:\Search-by-image\UI\SearchUI\SearchUI\obj\Release\SearchUI.pdb
