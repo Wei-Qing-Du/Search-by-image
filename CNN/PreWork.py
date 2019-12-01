@@ -194,8 +194,8 @@ def get_batch(image,label,image_W,image_H,batch_size,capacity):
                                               capacity =capacity)
     #Reshape label，row size is [batch_size]
     label_batch =tf.reshape(label_batch,[batch_size])
-    image_batch = tf.cast(image_batch, tf.uint8)    # 显示彩色图像
-    #image_batch = tf.cast(image_batch,tf.float32)     #显示灰度图像
+    #image_batch = tf.cast(image_batch, tf.uint8)    # 显示彩色图像
+    image_batch = tf.cast(image_batch,tf.float32)     #显示灰度图像
 
     return image_batch,label_batch
     # Get two batches that are introduced into the CNN.
@@ -236,5 +236,5 @@ def PreWork():
         finally:
             coord.request_stop()
         coord.join(threads)
-if __name__ == '__main__':
+#if __name__ == '__main__':
     #PreWork()
