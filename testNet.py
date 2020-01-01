@@ -3,8 +3,8 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from CNNModel.CNNModel import deep_CNN
-from CNNModel.PreWork import get_files
+from CNN.CNNModel import deep_CNN
+from CNN.PreWork import get_files
 
 #=======================================================================
 #Get a image
@@ -40,7 +40,7 @@ def evaluate_one_image(image_array):
 
 
        # you need to change the directories to yours.
-       logs_train_dir = r'D:\PyCharm\KinZhang_First_ImageDetection\generate_data'
+       logs_train_dir = r'C:\Users\Z97MX-GAMING\Desktop\train_log'
 
        saver = tf.train.Saver()
 
@@ -61,14 +61,6 @@ def evaluate_one_image(image_array):
            max_index = np.argmax(prediction)
            if max_index >= 0:
                print('This is a roses with possibility %.6f' %prediction[:, max_index])
-            """
-           elif max_index==0:
-               print('This is a sunflowers with possibility %.6f' %prediction[:, 1])
-           elif max_index==2:
-               print('This is a poodle with possibility %.6f' %prediction[:, 2])
-           else:
-               print('This is a qiutian with possibility %.6f' %prediction[:, 3])
-            """
 #------------------------------------------------------------------------
 
 if __name__ == '__main__':
