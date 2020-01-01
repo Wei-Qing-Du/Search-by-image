@@ -27,31 +27,30 @@ tf.get_variable和tf.Variable函数差别
 
 #函数申明
 def weight_variable(shape,n):
-    # tf.truncated_normal(shape, mean, stddev)这个函数产生正态分布，均值和标准差自己设定。
-    # shape表示生成张量的维度，mean是均值
-    # stddev是标准差,，默认最大为1，最小为-1，均值为0
+    # tf.truncated_normal(shape, mean, stddev)是常態分布
+    # shape is tensor dimension，mean is average
+    # stddev是標準差,，默认最大为1，最小为-1，均值为0
     initial = tf.truncated_normal(shape,stddev=n,dtype=tf.float32)
     return initial
 
 def bias_variable(shape):
-    # 创建一个结构为shape矩阵也可以说是数组shape声明其行列，初始化所有值为0.1
+    # Create a bias array that size is shape, all value is 0.1
     initial = tf.constant(0.1,shape=shape,dtype=tf.float32)
     return initial
 
 def conv2d(x,w):
-    # 卷积遍历各方向步数为1，SAME：边缘外自动补0，遍历相乘
+    # Convolution's step-size is 1，SAME is add 0 to border
     # padding 一般只有两个值
-    # 卷积层后输出图像大小为：（W+2P-f）/stride+1并向下取整
-    return tf.nn.conv2d(x,w,strides=[1,1,1,1],padding='SAME')   #[batch, height, width, channels]
-    #strides[0] = 1，也即在 batch 维度上的移动为 1，也就是不跳过任何一个样本，否则当初也不该把它们作为输入（input）
-    #strides[3] = 1，也即在 channels 维度上的移动为 1，也就是不跳过任何一个颜色通道；
+    # output is（W+2P-f）/stride+1并向下取整
+    return tf.nn.conv2d(x,w,strides=[1,1,1,1],padding='SAME')   # x includes [batch, height, width, channels]
+    # w is filter
 
 def max_pooling(x,name):    #2×2
-    # 池化卷积结果（conv2d）池化层采用kernel大小为3*3，步数也为2，SAME：周围补0，取最大值。数据量缩小了4倍
+    # Put conv2d result to pool kernel is 3*3，step is 2，SAME add 0 to border
     # x 是 CNN 第一步卷积的输出量，其shape必须为[batch, height, weight, channels];
-    # ksize 是池化窗口的大小， shape为[batch, height, weight, channels]
-    # stride 步长，一般是[1，stride， stride，1]
-    # 池化层输出图像的大小为(W-f)/stride+1，向上取整
+    # ksize pool size， shape is [batch, height, weight, channels]
+    # stride is step，[1，stride， stride，1]
+    # output is (W-f)/stride+1
     return tf.nn.max_pool(x,ksize=[1,3,3,1],strides=[1,2,2,1],padding='SAME',name=name)
 
 #A samole CNN，conv and pool layers ×2，full connect layer ×2，use softmax to classified
