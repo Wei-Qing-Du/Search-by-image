@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using OpenCvSharp;
+
 
 namespace SearchUI
 {
+   
     static class Program
     {
         /// <summary>
@@ -17,6 +20,7 @@ namespace SearchUI
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
+            Mat aa;
         }
     }
 }
