@@ -28,22 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
+            this.browserbtn = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.OKbtn = new System.Windows.Forms.Button();
+            this.cancelbtn = new System.Windows.Forms.Button();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.SuspendLayout();
             // 
-            // button1
+            // browserbtn
             // 
-            this.button1.BackColor = System.Drawing.SystemColors.HighlightText;
-            this.button1.ImageAlign = System.Drawing.ContentAlignment.TopRight;
-            this.button1.Location = new System.Drawing.Point(416, 80);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(105, 29);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Browser";
-            this.button1.UseVisualStyleBackColor = false;
+            this.browserbtn.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.browserbtn.ImageAlign = System.Drawing.ContentAlignment.TopRight;
+            this.browserbtn.Location = new System.Drawing.Point(416, 80);
+            this.browserbtn.Name = "browserbtn";
+            this.browserbtn.Size = new System.Drawing.Size(105, 29);
+            this.browserbtn.TabIndex = 0;
+            this.browserbtn.Text = "Browser";
+            this.browserbtn.UseVisualStyleBackColor = false;
+            this.browserbtn.Click += new System.EventHandler(this.browserbtn_Click);
             // 
             // textBox1
             // 
@@ -52,27 +54,31 @@
             this.textBox1.Size = new System.Drawing.Size(327, 29);
             this.textBox1.TabIndex = 1;
             // 
-            // button2
+            // OKbtn
             // 
-            this.button2.BackColor = System.Drawing.SystemColors.HighlightText;
-            this.button2.ImageAlign = System.Drawing.ContentAlignment.TopRight;
-            this.button2.Location = new System.Drawing.Point(121, 296);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(128, 50);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "OK";
-            this.button2.UseVisualStyleBackColor = false;
+            this.OKbtn.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.OKbtn.ImageAlign = System.Drawing.ContentAlignment.TopRight;
+            this.OKbtn.Location = new System.Drawing.Point(121, 296);
+            this.OKbtn.Name = "OKbtn";
+            this.OKbtn.Size = new System.Drawing.Size(128, 50);
+            this.OKbtn.TabIndex = 2;
+            this.OKbtn.Text = "OK";
+            this.OKbtn.UseVisualStyleBackColor = false;
             // 
-            // button3
+            // cancelbtn
             // 
-            this.button3.BackColor = System.Drawing.SystemColors.HighlightText;
-            this.button3.ImageAlign = System.Drawing.ContentAlignment.TopRight;
-            this.button3.Location = new System.Drawing.Point(291, 296);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(128, 50);
-            this.button3.TabIndex = 3;
-            this.button3.Text = "Cancel";
-            this.button3.UseVisualStyleBackColor = false;
+            this.cancelbtn.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.cancelbtn.ImageAlign = System.Drawing.ContentAlignment.TopRight;
+            this.cancelbtn.Location = new System.Drawing.Point(291, 296);
+            this.cancelbtn.Name = "cancelbtn";
+            this.cancelbtn.Size = new System.Drawing.Size(128, 50);
+            this.cancelbtn.TabIndex = 3;
+            this.cancelbtn.Text = "Cancel";
+            this.cancelbtn.UseVisualStyleBackColor = false;
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
             // 
             // Form1
             // 
@@ -80,10 +86,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLight;
             this.ClientSize = new System.Drawing.Size(584, 411);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.cancelbtn);
+            this.Controls.Add(this.OKbtn);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.browserbtn);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "Form1";
@@ -96,10 +102,11 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button browserbtn;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button OKbtn;
+        private System.Windows.Forms.Button cancelbtn;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
     }
 }
 
