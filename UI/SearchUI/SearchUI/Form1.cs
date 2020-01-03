@@ -27,6 +27,7 @@ namespace SearchUI
         {
             FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
             System.IO.BinaryReader br = new System.IO.BinaryReader(fs);
+            FileExtension extension;
             string fileType = string.Empty; ;
             try
             {
@@ -34,7 +35,7 @@ namespace SearchUI
                 fileType += data.ToString();
                 data = br.ReadByte();
                 fileType += data.ToString();
-                FileExtension extension;
+                
                 
                 extension = (FileExtension)Enum.Parse(typeof(FileExtension), fileType);
 
@@ -49,8 +50,6 @@ namespace SearchUI
                         extension = FileExtension.VALIDFILE;
                         break;
                 }
-       
-                return extension;
             }
             catch (Exception ex)
             {
@@ -62,7 +61,8 @@ namespace SearchUI
                     fs.Close();
                     br.Close();
                 }
-            
+
+            return extension;
         }
 
 
