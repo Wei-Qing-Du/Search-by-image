@@ -1,5 +1,5 @@
 import numpy as np
-from tensorflow.compat import v1 as tf
+import tensorflow as tf
 
 from include.data import get_data_set
 from include.model import model
@@ -30,6 +30,8 @@ except ValueError:
 
 def main():
     i = 0
+    """
+    #Use all test data 
     predicted_class = np.zeros(shape=len(test_x), dtype=np.int)
     while i < len(test_x):
         j = min(i + _BATCH_SIZE, len(test_x))
@@ -37,11 +39,23 @@ def main():
         batch_ys = test_y[i:j, :]
         predicted_class[i:j] = sess.run(y_pred_cls, feed_dict={x: batch_xs, y: batch_ys})
         i = j
-
+    """
+    #Use one data
+    batch_xs = test_x[1:2, :]
+    batch_ys = test_y[1:2, :]
+    for i,v in enumerate(batch_ys):
+        for j ,e in enumerate(v):
+         if e==1.0:
+             label = j
+             break
+    print("real class is %d\n" %label)
+    predicted_class = sess.run(y_pred_cls, feed_dict={x: batch_xs, y: batch_ys})
+    print("predicted class is %d\n" %predicted_class)
     correct = (np.argmax(test_y, axis=1) == predicted_class)
     acc = correct.mean() * 100
     correct_numbers = correct.sum()
     print()
+    
     print("Accuracy on Test-Set: {0:.2f}% ({1} / {2})".format(acc, correct_numbers, len(test_x)))
 
 
