@@ -5,9 +5,21 @@ from urllib.request import urlretrieve
 import tarfile
 import zipfile
 import sys
-
+from keras.preprocessing.image import ImageDataGenerator #For data augmentation
+from matplotlib import pyplot as plt
+from scipy.misc import toimage
 
 def get_data_set(name="train"):
+    def Show(datagen, train_x, train_y):
+        for X_batch, y_batch in datagen.flow(train_x, train_y, batch_size=9):
+            # Show 9 images
+            for i in range(0, 9):
+                plt.subplot(330 + 1 + i)
+                plt.imshow(toimage(X_batch[i].reshape(32, 32, 3)))
+            # show the plot
+            plt.show()
+            break
+
     x = None
     y = None
 
@@ -17,6 +29,9 @@ def get_data_set(name="train"):
 
     f = open('./data_set/'+folder_name+'/batches.meta', 'rb')
     f.close()
+    datagen = ImageDataGenerator( rotation_range=90,
+                 width_shift_range=0.1, height_shift_range=0.1,
+                 horizontal_flip=True)
 
     if name is "train":
         for i in range(5):
@@ -30,6 +45,8 @@ def get_data_set(name="train"):
             _X = np.array(_X, dtype=float) / 255.0
             _X = _X.reshape([-1, 3, 32, 32])
             _X = _X.transpose([0, 2, 3, 1])
+            datagen.fit(_X)
+            Show(datagen, _X, _Y)
             _X = _X.reshape(-1, 32*32*3)
 
             if x is None:
