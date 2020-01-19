@@ -41,7 +41,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 merged = tf.summary.merge_all()
 saver = tf.train.Saver()
 sess = tf.Session()
-train_writer = tf.summary.FileWriter(_SAVE_PATH, sess.graph)
+train_writer = tf.summary.FileWriter("./temp/", sess.graph)
 
 
 try:
@@ -126,19 +126,17 @@ def test_and_save(_global_step, epoch):
 
     print("###########################################################################################################")
 
-
 def main():
     train_start = time()
 
     for i in range(_EPOCH):
         print("\nEpoch: {}/{}\n".format((i+1), _EPOCH))
         train(i)
-
     hours, rem = divmod(time() - train_start, 3600)
     minutes, seconds = divmod(rem, 60)
     mes = "Best accuracy pre session: {:.2f}, time: {:0>2}:{:0>2}:{:05.2f}"
     print(mes.format(global_accuracy, int(hours), int(minutes), seconds))
-
+    train_writer.close()
 
 if __name__ == "__main__":
     main()

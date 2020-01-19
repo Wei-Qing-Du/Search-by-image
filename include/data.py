@@ -46,7 +46,7 @@ def get_data_set(name="train"):
             _X = _X.reshape([-1, 3, 32, 32])
             _X = _X.transpose([0, 2, 3, 1])
             datagen.fit(_X)
-            Show(datagen, _X, _Y)
+            #Show(datagen, _X, _Y)
             _X = _X.reshape(-1, 32*32*3)
 
             if x is None:

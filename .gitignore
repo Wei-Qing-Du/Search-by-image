@@ -8,6 +8,7 @@
 data_set
 tensorboard
 include/__pycache__
+temp/
 
 # User-specific files
 *.rsuser
