@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenCvSharp;
 using System.IO;
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
 
 namespace SearchUI
 {
@@ -23,6 +25,69 @@ namespace SearchUI
         {
             InitializeComponent();
         }
+
+        static float[] LoadTensorFromFile(string filename)
+        {
+            var tensorData = new List<float>();
+
+            // read data from file
+            using (var inputFile = new System.IO.StreamReader(filename))
+            {
+                inputFile.ReadLine(); //skip the input name
+                string[] dataStr = inputFile.ReadLine().Split(new char[] { ',', '[', ']' }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < dataStr.Length; i++)
+                {
+                    tensorData.Add(Single.Parse(dataStr[i]));
+                }
+            }
+
+            return tensorData.ToArray();
+        }
+
+
+        private bool RunONNX(string path)
+        {
+            try
+            {
+                //string basepath = path/*"..\\..\\..\\testdata\\"*/;
+                string modelPath = path + "squeezenet.onnx";
+                // Optional : Create session options and set the graph optimization level for the session
+                SessionOptions options = new SessionOptions();
+                options.GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_EXTENDED;
+
+                using (var session = new InferenceSession(modelPath, options))
+                {
+                    var inputMeta = session.InputMetadata;
+                    var container = new List<NamedOnnxValue>();
+
+                    float[] inputData = LoadTensorFromFile(path + "bench.in"); // this is the data for only one input tensor for this model
+
+                    foreach (var name in inputMeta.Keys)
+                    {
+                        var tensor = new DenseTensor<float>(inputData, inputMeta[name].Dimensions);
+                        container.Add(NamedOnnxValue.CreateFromTensor<float>(name, tensor));
+                    }
+
+                    // Run the inference
+                    using (var results = session.Run(container))  // results is an IDisposableReadOnlyCollection<DisposableNamedOnnxValue> container
+                    {
+                        // dump the results
+                        foreach (var r in results)
+                        {
+                            Console.WriteLine("Output for {0}", r.Name);
+                            Console.WriteLine(r.AsTensor<float>().GetArrayString());
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private FileExtension checkimgfile(string fileName)
         {
             FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
@@ -105,6 +170,16 @@ namespace SearchUI
                 }
             }
 
+        }
+
+        private void OKbtn_Click(object sender, EventArgs e)
+        {
+            if(!RunONNX("D:\\Search-by-image\\UI\\TestOnnx\\testdata\\"))
+                MessageBox.Show("VALIDFILE OF RUNNING ONNX", "Error");
+            else
+                MessageBox.Show("Succeed to load", "Good");
+
+            textBox1.Clear();
         }
     }
 }
