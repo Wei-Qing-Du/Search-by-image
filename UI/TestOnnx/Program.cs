@@ -23,7 +23,8 @@ namespace TestOnnx
 
         static void UseApi()
         {
-            string modelPath = Directory.GetCurrentDirectory() + @"\squeezenet.onnx";
+            string basepath = "..\\..\\..\\testdata\\";
+            string modelPath = basepath + "squeezenet.onnx";
             Debug.Assert(File.Exists(modelPath));
             // Optional : Create session options and set the graph optimization level for the session
             SessionOptions options = new SessionOptions();
@@ -34,7 +35,7 @@ namespace TestOnnx
                 var inputMeta = session.InputMetadata;
                 var container = new List<NamedOnnxValue>();
 
-                float[] inputData = LoadTensorFromFile(@"bench.in"); // this is the data for only one input tensor for this model
+                float[] inputData = LoadTensorFromFile(basepath + "bench.in"); // this is the data for only one input tensor for this model
 
                 foreach (var name in inputMeta.Keys)
                 {
