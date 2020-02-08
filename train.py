@@ -6,8 +6,8 @@ import math
 
 from include.data import get_data_set
 from include.model import model, lr
-
-
+import tempfile
+from tensorflow.python.framework.graph_util import convert_variables_to_constants
 
 train_x, train_y = get_data_set("train")
 
@@ -22,7 +22,7 @@ epoch_start = 0
 _BATCH_SIZE = 128
 _EPOCH = 60
 _SAVE_PATH = "./tensorboard/cifar-10-v1.0.0/"
-
+_SAVE_PATH_OF_CKPT = _SAVE_PATH + "model.ckpt"
 
 # LOSS AND OPTIMIZER
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=y))
@@ -46,7 +46,7 @@ train_writer = tf.summary.FileWriter("./temp/", sess.graph)
 
 try:
     print("\nTrying to restore last checkpoint ...")
-    last_chk_path = tf.train.latest_checkpoint(checkpoint_dir=_SAVE_PATH)
+    last_chk_path = tf.train.latest_checkpoint(checkpoint_dir=_SAVE_PATH_OF_CKPT)
     saver.restore(sess, save_path=last_chk_path)
     print("Restored checkpoint from:", last_chk_path)
 except ValueError:
@@ -115,7 +115,9 @@ def test_and_save(_global_step, epoch):
         ])
         train_writer.add_summary(summary, _global_step)
 
-        saver.save(sess, save_path=_SAVE_PATH, global_step=_global_step)
+        saver.save(sess, save_path=_SAVE_PATH_OF_CKPT, global_step=_global_step)
+
+        tf.train.write_graph(sess.graph_def, '.', 'minimal_graph.proto', as_text=False)
 
         mes = "This epoch receive better accuracy: {:.2f} > {:.2f}. Saving session..."
         print(mes.format(acc, global_accuracy))
