@@ -58,7 +58,7 @@ def model():
         drop = tf.layers.dropout(fc, rate=0.5)
         softmax = tf.layers.dense(inputs=drop, units=_NUM_CLASSES, name=scope.name)
 
-    y_pred_cls = tf.argmax(softmax, axis=1)
+    y_pred_cls = tf.argmax(softmax, axis=1, name ="predicted_labels")
 
     return x, y, softmax, y_pred_cls, global_step, learning_rate
 
