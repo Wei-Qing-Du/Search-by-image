@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.browserbtn = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.load_files_txtbox = new System.Windows.Forms.TextBox();
             this.OKbtn = new System.Windows.Forms.Button();
             this.cancelbtn = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
@@ -47,12 +47,12 @@
             this.browserbtn.UseVisualStyleBackColor = false;
             this.browserbtn.Click += new System.EventHandler(this.browserbtn_Click);
             // 
-            // textBox1
+            // load_files_txtbox
             // 
-            this.textBox1.Location = new System.Drawing.Point(60, 80);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(327, 29);
-            this.textBox1.TabIndex = 1;
+            this.load_files_txtbox.Location = new System.Drawing.Point(60, 80);
+            this.load_files_txtbox.Name = "load_files_txtbox";
+            this.load_files_txtbox.Size = new System.Drawing.Size(327, 29);
+            this.load_files_txtbox.TabIndex = 1;
             // 
             // OKbtn
             // 
@@ -89,7 +89,7 @@
             this.ClientSize = new System.Drawing.Size(584, 411);
             this.Controls.Add(this.cancelbtn);
             this.Controls.Add(this.OKbtn);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.load_files_txtbox);
             this.Controls.Add(this.browserbtn);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(6);
@@ -104,7 +104,7 @@
         #endregion
 
         private System.Windows.Forms.Button browserbtn;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox load_files_txtbox;
         private System.Windows.Forms.Button OKbtn;
         private System.Windows.Forms.Button cancelbtn;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
