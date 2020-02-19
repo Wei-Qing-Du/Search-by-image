@@ -27,4 +27,4 @@ python -m tf2onnx.convert
     [--continue_on_error]
     [--verbose]
 
-python -m tf2onnx.convert --input D:/Search-by-image/frozen.pb --inputs main_params/Input:0[None,3072] --outputs predicted_labels:0 --output D:/Search-by-image/model.onnx --fold_const
+python -m tf2onnx.convert --input D:/Search-by-image/frozen.pb --inputs main_params/Input:0[1,3072] --outputs predicted_labels:0[0,9] --output D:/Search-by-image/model.onnx --fold_const
