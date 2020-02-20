@@ -1,6 +1,6 @@
 # Search image by deep learning
 
-We try to use deep learning deep Convolutional Neural Networks to catch feature of images which will be a classifier to let computer know image type and then find similar images from local computer.
+We try to use deep learning Deep Convolutional Neural Networks to catch feature of images which will be a classifier to let computer know image type and then find similar images from local computer.
 
 # References
 Our project referenced **Image Retrieval[1]** and **Tensorflow-cifar-10[2]** to training the data.
