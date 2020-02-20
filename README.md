@@ -1,8 +1,21 @@
 # Search image by deep learning
 
-We try to use deep learning to catch feature of images which will be a classifier to let computer know image type and then find similar images from local computer(Not finish)   
+We try to use deep learning deep Convolutional Neural Networks to catch feature of images which will be a classifier to let computer know image type and then find similar images from local computer.
+
+# References
+Our project referenced **Image Retrieval[1]**
+>* [1]CH Kuo, YH Chou, PC Chang, "Using Deep Convolutional Neural Networks for Image Retrieval", Electronic Imaging, 2016.  
+# Environment
+>* WINDOWS 10.
+>* Python3.x.
+>* Anaconda.
+>* VisualStudio 2017 up.
+>* Tensorflow gpu.
+>   * Use gpu can speed up training.
+>* [Open Neural Network Exchange(ONNX)](https://github.com/onnx/onnx)  
+>* [Cifar-10](https://www.cs.toronto.edu/~kriz/cifar.html) for training and testing.  
 Cifar-10 convolutional network implementation example using TensorFlow library.
-![](https://s3.eu-central-1.amazonaws.com/serhiy/Github_repo/tensorflow-cifar-10/v1.0.0/plot.png?v1)
+![](https://trello-attachments.s3.amazonaws.com/5e11b4a007fc4d333fd1819b/1063x532/7ffdae91082a8a57c9e9649ac90b9ee0/image.png)
 
 ## Requirement
 **Library** | **Version**
