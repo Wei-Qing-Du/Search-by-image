@@ -3,8 +3,9 @@
 We try to use deep learning deep Convolutional Neural Networks to catch feature of images which will be a classifier to let computer know image type and then find similar images from local computer.
 
 # References
-Our project referenced **Image Retrieval[1]**
->* [1]CH Kuo, YH Chou, PC Chang, "Using Deep Convolutional Neural Networks for Image Retrieval", Electronic Imaging, 2016.  
+Our project referenced **Image Retrieval[1]** and **Tensorflow-cifar-10[2]** to training the data.
+>* [1]CH Kuo, YH Chou, PC Chang, "Using Deep Convolutional Neural Networks for Image Retrieval", Electronic Imaging, 2016.
+>* [2][Tensorflow-cifar-10.](https://github.com/exelban/tensorflow-cifar-10)
 # Environment
 >* WINDOWS 10.
 >* Python3.x.
@@ -13,41 +14,19 @@ Our project referenced **Image Retrieval[1]**
 >* Tensorflow gpu.
 >   * Use gpu can speed up training.
 >* [Open Neural Network Exchange(ONNX)](https://github.com/onnx/onnx)  
+>   * Tool for converting tensorflow to ONNX.
 >* [Cifar-10](https://www.cs.toronto.edu/~kriz/cifar.html) for training and testing.  
+
 Cifar-10 convolutional network implementation example using TensorFlow library.
 ![](https://trello-attachments.s3.amazonaws.com/5e11b4a007fc4d333fd1819b/1063x532/7ffdae91082a8a57c9e9649ac90b9ee0/image.png)
 
-## Requirement
-**Library** | **Version**
---- | ---
-**Python** | **^3.6.5**
-**Tensorflow** | **^1.6.0**
-**Numpy** | **^1.14.2** 
-**Pickle** | **^4.0**  
-
 ## Accuracy 
-Best accurancy what I receive was ```79.12%``` on test data set. You must to understand that network cant always learn with the same accuracy. But almost always accuracy more than ```78%```.
+Best accurancy what I receive was ```78-79%``` on test data set. We'll use **data augmentation** and other network, for example, **ResNet** in the future, 
 
-This repository is just example of implemantation convolution neural network. Here I implement a simple neural network for image recognition with good accuracy.
-
-If you want to get more that 80% accuracy, You need to implement more complicated nn models (such as [ResNet](https://arxiv.org/abs/1512.03385), [GoogleLeNet](https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf), [mobileNetV2](https://arxiv.org/abs/1801.04381) ect).
+This repository is just example of implemantation convolution neural network. Here I implement a simple neural network for image recognition with good if you want to get more that 80% accuracyaccuracy.
 
 
-## Usage
-### Download code
-```sh
-git clone https://github.com/exelban/tensorflow-cifar-10
-
-cd tensorflow-cifar-10
-```
-
-### Check if you have nessessary packages
-```sh
-pip3 install numpy tensorflow pickle
-```
-
-
-### Train network
+## Result(Not finish)
 By default network will be run 60 epoch (60 times on all training data set).  
 You can change that by editing ```_EPOCH``` in ```train.py``` file.
 
