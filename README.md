@@ -1,4 +1,6 @@
-# tensorflow-cifar-10
+# Search image by deep learning
+
+We try to use deep learning to catch feature of images which will be a classifier to let computer know image type and then find similar images from local computer(Not finish)   
 Cifar-10 convolutional network implementation example using TensorFlow library.
 ![](https://s3.eu-central-1.amazonaws.com/serhiy/Github_repo/tensorflow-cifar-10/v1.0.0/plot.png?v1)
 
@@ -10,7 +12,7 @@ Cifar-10 convolutional network implementation example using TensorFlow library.
 **Numpy** | **^1.14.2** 
 **Pickle** | **^4.0**  
 
-## Accuracy
+## Accuracy 
 Best accurancy what I receive was ```79.12%``` on test data set. You must to understand that network cant always learn with the same accuracy. But almost always accuracy more than ```78%```.
 
 This repository is just example of implemantation convolution neural network. Here I implement a simple neural network for image recognition with good accuracy.
