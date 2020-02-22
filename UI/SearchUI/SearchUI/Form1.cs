@@ -11,14 +11,16 @@ using OpenCvSharp;
 using System.IO;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
-
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace SearchUI
 {
     public partial class Form1 : Form
     {
-        Mat inputimg;
+        String imgpath;
         const int IMG_W = 32, IMG_H = 32;
+        static int img_type;
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -38,43 +40,51 @@ namespace SearchUI
 
             return  tensorData;
         }
+        static void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                String res;
+                Console.WriteLine(e.Data + Environment.NewLine);
+                res = e.Data;
+                //Remove "[]"
+                res = res.Replace("[","");
+                res = res.Replace("]", "");
+                img_type = Int32.Parse(res);//To int
+            }
+        }
 
-
-        private bool RunONNX(string path, ref Mat img)
+        private bool RunONNX()
         {
             try
             {
-                //string basepath = path/*"..\\..\\..\\testdata\\"*/;
-                string modelPath = path + "model.onnx";
-                // Optional : Create session options and set the graph optimization level for the session
-                SessionOptions options = new SessionOptions();
-                options.GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_EXTENDED;
+                string args = "-u";
+                string strArr = imgpath;
+                string sArguments = @"..\..\..\..\..\..\predict_test.py";
 
-                using (var session = new InferenceSession(modelPath, options))
-                {
-                    var inputMeta = session.InputMetadata;
-                    var container = new List<NamedOnnxValue>();
+                Process p = new Process();
+                p.StartInfo.FileName = @"D:\Anaconda3\envs\TENSOR\python.exe";
 
-                    float[] inputData = LoadTensorFromFile(ref img); // this is the data for only one input tensor for this model
-                
-                    foreach (var name in inputMeta.Keys)
-                    {
-      
-                        var tensor = new DenseTensor<float>(inputData, inputMeta[name].Dimensions);
-                        container.Add(NamedOnnxValue.CreateFromTensor<float>(name, tensor));
-                    }
+                sArguments += " " + strArr;
+                sArguments += " " + args;
 
-                    // Run the inference
-                    using (var results = session.Run(container))  // results is an IDisposableReadOnlyCollection<DisposableNamedOnnxValue> container
-                    {
-                        // dump the results
-                        foreach (var r in results)
-                        {
-                            Console.WriteLine("Output for {0}", r.Name);
-                            Console.WriteLine(r.AsEnumerable<float>().ToString());
-                        }
-                    }
-                }
+                p.StartInfo.Arguments = sArguments;
+
+                p.StartInfo.UseShellExecute = false;
+
+                p.StartInfo.RedirectStandardOutput = true;
+
+                p.StartInfo.RedirectStandardInput = true;
+
+                p.StartInfo.RedirectStandardError = true;
+
+                p.StartInfo.CreateNoWindow = true;
+
+                p.Start();
+                p.BeginOutputReadLine();
+                p.OutputDataReceived += new DataReceivedEventHandler(p_OutputDataReceived);
+                Console.ReadLine();
+                p.WaitForExit();
             }
             catch(Exception ex)
             {
@@ -84,18 +94,7 @@ namespace SearchUI
 
             return true;
         }
-
-        void preprocess(ref Mat img)
-        {
-            if(img.Cols > IMG_W || img.Rows > IMG_H)
-            {
-
-                OpenCvSharp.Size size;
-                size.Height = IMG_H;
-                size.Width = IMG_W;
-                Cv2.Resize(img, img, size);
-            }
-        }
+           
 
         private FileExtension checkimgfile(string fileName)
         {
@@ -170,9 +169,9 @@ namespace SearchUI
                 }
                 else
                 {
-
-                    inputimg = Cv2.ImRead(load_files_txtbox.Text);
-                    preprocess(ref inputimg);
+                    imgpath = load_files_txtbox.Text;
+                    //inputimg = Cv2.ImRead(load_files_txtbox.Text);
+                    //preprocess(ref inputimg);
                     /*Cv2.ImShow("A", img);
                     Cv2.WaitKey(0);
                     Cv2.DestroyAllWindows();*/
@@ -184,7 +183,7 @@ namespace SearchUI
 
         private void OKbtn_Click(object sender, EventArgs e)
         {
-            if(!RunONNX("..\\..\\..\\..\\..\\..\\", ref inputimg))
+            if(!RunONNX(/*"..\\..\\..\\..\\..\\..\\"*/))
                 MessageBox.Show("VALIDFILE OF RUNNING ONNX", "Error");
             else
                 MessageBox.Show("Succeed to load", "Good");
