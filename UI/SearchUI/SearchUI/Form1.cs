@@ -13,6 +13,7 @@ using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SearchUI
 {
@@ -21,6 +22,8 @@ namespace SearchUI
         String imgpath;
         const int IMG_W = 32, IMG_H = 32;
         static int img_type;
+        delegate void ProcessFile(object i);
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -101,7 +104,7 @@ namespace SearchUI
             FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
             System.IO.BinaryReader br = new System.IO.BinaryReader(fs);
             FileExtension extension;
-            string fileType = string.Empty; ;
+            string fileType = string.Empty;
             try
             {
                 byte data = br.ReadByte();
@@ -180,14 +183,57 @@ namespace SearchUI
             }
 
         }
+        private List<String> find_similar_img()
+        {
+            ThreadPool.SetMaxThreads(4, 4);
+            List<String> pathLists = new List<String>();
+            FileExtension extension;
 
+            String basepath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop); //Get user desktop path
+            string[] directories = Directory.GetDirectories(@basepath);
+
+            ProcessFile processfile = directory =>//Use lambda
+            {
+                Object thisLock = new Object();//Use lock to avoid race condition
+                Console.WriteLine(Thread.CurrentThread.GetHashCode());
+                lock (thisLock)
+                {
+                    String str = "";
+                    DirectoryInfo d = new DirectoryInfo((String)@directory);//Assuming get file info from each directory
+                    FileInfo[] Files = d.GetFiles("*.*"); //Getting files info 
+
+
+                    foreach (FileInfo file in Files)//Get files
+                    {
+                        str = "";
+                        str += (@directory + "\\" + file.Name);
+                        extension = checkimgfile(str);
+                        if (extension == FileExtension.VALIDFILE)
+                        {
+                            continue;
+                        }
+                        pathLists.Add(str);
+                    }
+                }
+               
+            };
+
+            foreach (string tempath in directories)
+            {
+                ThreadPool.QueueUserWorkItem(new WaitCallback(processfile), tempath);//Use threads to find image file
+            }
+            Thread.Sleep(2000);
+            return pathLists;
+        }
         private void OKbtn_Click(object sender, EventArgs e)
         {
-            if(!RunONNX(/*"..\\..\\..\\..\\..\\..\\"*/))
+            List<String> pathLists;
+            if (!RunONNX(/*"..\\..\\..\\..\\..\\..\\"*/))
                 MessageBox.Show("VALIDFILE OF RUNNING ONNX", "Error");
             else
                 MessageBox.Show("Succeed to load", "Good");
 
+            pathLists = find_similar_img();
             load_files_txtbox.Clear();
         }
     }
