@@ -20,13 +20,16 @@ Our project referenced **Image Retrieval[1]** and **Tensorflow-cifar-10[2]** to 
 Cifar-10 convolutional network implementation example using TensorFlow library.
 ![](https://trello-attachments.s3.amazonaws.com/5e11b4a007fc4d333fd1819b/1063x532/7ffdae91082a8a57c9e9649ac90b9ee0/image.png)
 
-## Accuracy 
+# Workflow
+![](https://github.com/do-wie-ching/Search-by-image/blob/master/WorkFlow/WorkFlow.jpg)
+
+# Accuracy 
 Best accurancy what I receive was ```78-79%``` on test data set. We'll use **data augmentation** and other network, for example, **ResNet** in the future, 
 
 This repository is just example of implemantation convolution neural network. Here I implement a simple neural network for image recognition with good if you want to get more that 80% accuracyaccuracy.
 
 
-## Result(Not finish)
+# Result
 By default network will be run 60 epoch (60 times on all training data set).  
 You can change that by editing ```_EPOCH``` in ```train.py``` file.
 
@@ -90,8 +93,22 @@ This epoch receive better accuracy: 78.81 > 78.78. Saving session...
 
 
 ### Run network on test data set
+We changed a little bit of code, let it can classify a single image to suit our project.
 ```sh
 python3 predict.py
+```
+```sh
+#Use one data
+    batch_xs = test_x[1:2, :]
+    batch_ys = test_y[1:2, :]
+    for i,v in enumerate(batch_ys):
+        for j ,e in enumerate(v):
+         if e==1.0:
+             label = j
+             break
+    print("real class is %d\n" %label)
+    predicted_class = sess.run(y_pred_cls, feed_dict={x: batch_xs, y: batch_ys})
+    print("predicted class is %d\n" %predicted_class)
 ```
 
 Simple output:
@@ -102,46 +119,11 @@ Restored checkpoint from: ./tensorboard/cifar-10-v1.0.0/-23460
 Accuracy on Test-Set: 78.81% (7881 / 10000)
 ```
 
-
-## Training time
-Here you can see how much time takes 60 epoch:
-
-**Device** | **Batch size**  | **Time** | **Accuracy [%]**
---- | --- | --- | ---
-**NVidia GTX 1070** | **128** | **8m 4s** | **79.12**
-**Intel i7 7700HQ** | **128** | **3h 30m** | **78.91**
-
 Please send me (or open issue) your time and accuracy. I will add it to the list.
 
-## Model
-
-## What's new
 
 ### v1.0.1
-    - Set random seed
-    - Added more information about elapsed time on epoch and full training
 
-### v1.0.0
-    - Removed all references to cifar 100
-    - Small fixes in data functions
-    - Almost fully rewrited train.py
-    - Simplyfy cnn model
-    - Changed optimizer to AdamOptimizer
-    - Changed Licence to MIT
-    - Removed confusion matrix (don't like to have unnecessary dependencies)
-    - Improved accuracy on testing data set (up to 79%)
-    - Small fixes in train.py
-    - Changed saver functions (now session will be saved only if accuracy in this session will be better than the last saved)
-    - Updated packages
-
-### v0.0.1
-    - Make tests on AWS instances
-    - Model fixes
-    - Remove cifar-100 dataset
-
-
-### v0.0.0
-    - First release
 
 ## License
 [MIT License](https://github.com/exelban/tensorflow-cifar-10/blob/master/LICENSE)
