@@ -21,7 +21,11 @@ Cifar-10 convolutional network implementation example using TensorFlow library.
 ![](https://trello-attachments.s3.amazonaws.com/5e11b4a007fc4d333fd1819b/1063x532/7ffdae91082a8a57c9e9649ac90b9ee0/image.png)
 
 # Workflow
-![](https://github.com/do-wie-ching/Search-by-image/blob/master/WorkFlow/WorkFlow.jpg)
+
+Frist, we need to convert to ONNX model after train to tensorflow model, but not transform diametrically. It need to [freeze graph with tensorflow](https://github.com/onnx/tensorflow-onnx)(xx.ckpt) that makes .pb file.  
+After convert to ONNX model we wrote [python code](predict_test.py) to run it and use C# to connect to the pyhton to recognize image type.
+![](WorkFlow/WorkFlow.jpg)
+
 
 # Accuracy 
 Best accurancy what I receive was ```78-79%``` on test data set. We'll use **data augmentation** and other network, for example, **ResNet** in the future, 
@@ -119,11 +123,12 @@ Restored checkpoint from: ./tensorboard/cifar-10-v1.0.0/-23460
 Accuracy on Test-Set: 78.81% (7881 / 10000)
 ```
 
-Please send me (or open issue) your time and accuracy. I will add it to the list.
+Please send me (or open issue) if you don't understand or encounter difficulties.
 
 
-### v1.0.1
-
-
+### v0.0
+```
+-  Frist Realse 
+```
 ## License
 [MIT License](https://github.com/exelban/tensorflow-cifar-10/blob/master/LICENSE)
