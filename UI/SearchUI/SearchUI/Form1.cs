@@ -23,6 +23,8 @@ namespace SearchUI
         const int IMG_W = 32, IMG_H = 32;
         static int img_type;
         delegate void ProcessFile(object i);
+        List<String> pathLists;
+        int count = 1;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -161,8 +163,7 @@ namespace SearchUI
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 load_files_txtbox.Text = openFileDialog1.FileName;
-                /*var ext = openFileDialog1.FileName.Substring(openFileDialog1.FileName.LastIndexOf(".") + 1,
-                    openFileDialog1.FileName.Length - openFileDialog1.FileName.LastIndexOf(".") - 1); Get extension name*/
+               
 
                 extension = checkimgfile(load_files_txtbox.Text);
                 if (extension == FileExtension.VALIDFILE)
@@ -173,12 +174,6 @@ namespace SearchUI
                 else
                 {
                     imgpath = load_files_txtbox.Text;
-                    //inputimg = Cv2.ImRead(load_files_txtbox.Text);
-                    //preprocess(ref inputimg);
-                    /*Cv2.ImShow("A", img);
-                    Cv2.WaitKey(0);
-                    Cv2.DestroyAllWindows();*/
-
                 }
             }
 
@@ -190,8 +185,9 @@ namespace SearchUI
             FileExtension extension;
 
             String basepath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop); //Get user desktop path
-            string[] directories = Directory.GetDirectories(@basepath);
+            String targetpath = (@basepath +@"\" +Convert.ToString(img_type));
 
+            #region lambda
             ProcessFile processfile = directory =>//Use lambda
             {
                 Object thisLock = new Object();//Use lock to avoid race condition
@@ -217,24 +213,43 @@ namespace SearchUI
                 }
                
             };
+            #endregion
 
-            foreach (string tempath in directories)
-            {
-                ThreadPool.QueueUserWorkItem(new WaitCallback(processfile), tempath);//Use threads to find image file
-            }
+            ThreadPool.QueueUserWorkItem(new WaitCallback(processfile), targetpath);//Use threads to find image file
             Thread.Sleep(2000);
+
             return pathLists;
         }
+
+         private void RespicBox_Click(object sender, EventArgs e)//Show images
+        {
+            if (count > 3)
+                count = 0;
+
+            RespicBox.Load(pathLists[count]);
+            count++;
+        }
+
+        private void RespicBox_MouseEnter(object sender, EventArgs e)
+        {
+            RespicBox.Cursor = Cursors.Hand;
+        }
+
+        private void RespicBox_MouseLeave(object sender, EventArgs e)
+        {
+            RespicBox.Cursor = Cursors.Default;
+        }
+
         private void OKbtn_Click(object sender, EventArgs e)
         {
-            List<String> pathLists;
-            if (!RunONNX(/*"..\\..\\..\\..\\..\\..\\"*/))
-                MessageBox.Show("VALIDFILE OF RUNNING ONNX", "Error");
-            else
-                MessageBox.Show("Succeed to load", "Good");
+            
+            RunONNX();
 
             pathLists = find_similar_img();
+
             load_files_txtbox.Clear();
+
+            RespicBox.Load(pathLists[0]);//Show frist image when we load app fristly.
         }
     }
 }
