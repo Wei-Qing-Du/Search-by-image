@@ -153,6 +153,7 @@ namespace SearchUI
         }
         private void browserbtn_Click(object sender, EventArgs e)
         {
+            RespicBox.Image = null;
             FileExtension extension;
             openFileDialog1.Title = "C# Corner Open File Dialog";
             openFileDialog1.InitialDirectory = @"c:\";
@@ -223,10 +224,17 @@ namespace SearchUI
 
          private void RespicBox_Click(object sender, EventArgs e)//Show images
         {
+            OpenCvSharp.Size size = new OpenCvSharp.Size(RespicBox.Width, RespicBox.Height);
+            Mat resultimg = Cv2.ImRead(pathLists[count]);
+            Cv2.Resize(resultimg, resultimg, size, 0, 0, InterpolationFlags.Cubic);
+
+            Bitmap bmp = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resultimg);
+
             if (count > 3)
                 count = 0;
 
-            RespicBox.Load(pathLists[count]);
+            //RespicBox.Load(pathLists[count]);
+            RespicBox.Image = bmp;
             count++;
         }
 
