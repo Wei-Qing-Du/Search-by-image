@@ -3,6 +3,7 @@ import onnxruntime as rt
 import numpy as np
 from PIL import Image
 import sys
+import os
 
 
 def preprocess(path):
@@ -19,8 +20,8 @@ def RunTestModel(img_path):
     
         data = np.asarray( img, dtype="float32" )
         data = data.reshape(1, 3072)
-    
-        sess = rt.InferenceSession("..\\..\\..\\..\\..\\..\\model.onnx")
+
+        sess = rt.InferenceSession(sys.path[0] + "\\model.onnx")
     
 
         # get model metadata to enable mapping of new input to the runtime model.
@@ -34,9 +35,4 @@ def RunTestModel(img_path):
         print(e)
     return pred_onx
 
-
-
-
-
-
-print( RunTestModel(sys.argv[1]) )
+print(RunTestModel(sys.argv[1]))
