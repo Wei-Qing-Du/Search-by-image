@@ -1,6 +1,7 @@
 @echo off
-cd Desktop
-
+cd ..
+c:
+cd Users\%username%\desktop
 for /l %%x in (0,1,9) do (
     echo %%x
     mkdir %%x
