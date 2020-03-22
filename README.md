@@ -26,6 +26,52 @@ Frist, we need to convert to ONNX model after train to tensorflow model, but not
 After convert to ONNX model we wrote [python code](predict_test.py) to run it and use C# to connect to the pyhton to recognize image type.
 ![](WorkFlow/WorkFlow.jpg)
 
+# Usage
+## Prepare ONNX and OpenCV with C#
+```
+Install-Package OpenCvSharp4 -Version 4.2.0.20200208
+Install-Package Microsoft.ML.OnnxRuntime -Version 1.2.0
+```
+## Tensorflow to ONNX
+### Tool to Freeze Graph
+First, make proto file and ckpt file.
+```
+saver.save(sess, save_path=_SAVE_PATH_OF_CKPT, global_step=_global_step)
+
+tf.train.write_graph(sess.graph_def, '.', 'minimal_graph.proto', as_text=False)
+```
+Second, Make the freeze graph.
+Note:<font color="#660000">D:/Search-by-image/graph.proto and D:/Search-by-image/tensorboard/cifar-10-v1.0.0/checkpoint.ckpt must be changed by your path.</font><br />
+```
+python -m tensorflow.python.tools.freeze_graph \
+    --input_graph=D:/Search-by-image/graph.proto \
+    --input_binary=true \
+    --output_node_names=output \
+    --input_checkpoint=D:/Search-by-image/tensorboard/cifar-10-v1.0.0/checkpoint.ckpt \
+    --output_graph=D:/Search-by-image//frozen.pb
+```
+Final, tensorflow to onnx after get freeze graph.<br>
+Note: <font color="#660000">--inputs your input name and --outputs out name from your tensorflow code.</font>
+```
+python -m tf2onnx.convert 
+    [--input SOURCE_GRAPHDEF_PB]
+    [--graphdef SOURCE_GRAPHDEF_PB]
+    [--checkpoint SOURCE_CHECKPOINT]
+    [--saved-model SOURCE_SAVED_MODEL]
+    [--output TARGET_ONNX_MODEL]
+    [--inputs GRAPH_INPUTS]
+    [--outputs GRAPH_OUTPUS]
+    [--inputs-as-nchw inputs_provided_as_nchw]
+    [--opset OPSET]
+    [--target TARGET]
+    [--custom-ops list-of-custom-ops]
+    [--fold_const]
+    [--continue_on_error]
+    [--verbose]
+```
+### Video
+<div style="width:100%;height:0px;position:relative;padding-bottom:56.250%;"><iframe src="https://streamable.com/s/1ap44/jawofd" frameborder="0" width="100%" height="100%" allowfullscreen style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"></iframe></div>
+
 
 # Accuracy 
 Best accurancy what I receive was ```78-79%``` on test data set. We'll use **data augmentation** and other network, for example, **ResNet** in the future, 
