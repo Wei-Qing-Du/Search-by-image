@@ -8,6 +8,7 @@ from include.data import get_data_set
 from include.model import model, lr
 import tempfile
 from tensorflow.python.framework.graph_util import convert_variables_to_constants
+import argparse
 
 train_x, train_y = get_data_set("train")
 
@@ -129,17 +130,26 @@ def test_and_save(_global_step, epoch):
     print("###########################################################################################################")
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-C", "--CNN", type=int,default=0,
+                    help="Choose CNN to train the model")
+    parser.add_argument("-R", "--ResNet", type=int,default=0,
+                    help="Choose ResNet to train the model")
+    args = parser.parse_args()  
+
     train_start = time()
-
-    for i in range(_EPOCH):
-        print("\nEpoch: {}/{}\n".format((i+1), _EPOCH))
-        train(i)
-    hours, rem = divmod(time() - train_start, 3600)
-    minutes, seconds = divmod(rem, 60)
-    mes = "Best accuracy pre session: {:.2f}, time: {:0>2}:{:0>2}:{:05.2f}"
-    print(mes.format(global_accuracy, int(hours), int(minutes), seconds))
-    train_writer.close()
-
+    if(args.CNN != 0):
+        for i in range(_EPOCH):
+            print("\nEpoch: {}/{}\n".format((i + 1), _EPOCH))
+            train(i)
+        hours, rem = divmod(time() - train_start, 3600)
+        minutes, seconds = divmod(rem, 60)
+        mes = "Best accuracy pre session: {:.2f}, time: {:0>2}:{:0>2}:{:05.2f}"
+        print(mes.format(global_accuracy, int(hours), int(minutes), seconds))
+        train_writer.close()
+    elif(args.ResNet != 0):
+        print("ResNet")
+        return
 if __name__ == "__main__":
     main()
 
