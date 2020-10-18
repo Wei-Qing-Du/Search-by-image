@@ -117,6 +117,12 @@ class ResNet50(object):
         self.conv1 = relu(self.conv1)
         self.pool1 = maxpool(self.conv1, name='pool1')
 
+        """
+        Every stages have different number of blocks that can reference from https://zhuanlan.zhihu.com/p/79378841
+        Every blocks have three layers.
+
+        End of layer to next layer(begin of next stage) that will use short cut.
+        """
         # Stage 2
         with tf.variable_scope('scale2'):
             self.block1_1 = res_block_3_layer(self.pool1, [64, 64, 256], 'block1_1', True, 1, self.is_training)
@@ -161,7 +167,7 @@ class ResNet50(object):
 
 
     def optimize(self):
-        self.global_step = tf.train.get_or_create_global_step()
+        self.global_step = tf.train.get_or_create_global_step()# The number of batches seen by the graph
         self.optimizer = tf.train.AdamOptimizer(
             learning_rate=self.lr,
             beta1=self.beta1,
@@ -290,7 +296,7 @@ class ResNet50(object):
                 sess = tf_debug.LocalCLIDebugWrapperSession(sess)
 
             sess.run(tf.global_variables_initializer())
-            saver = tf.train.Saver(max_to_keep=100)
+            saver = tf.train.Saver(max_to_keep=100) #Save no.100 model recently.
             # upload existing saves
             train_step = self.global_step.eval()
             val_step = train_step
