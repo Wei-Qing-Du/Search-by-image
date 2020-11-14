@@ -2,22 +2,25 @@ import argparse
 import sys
 import os
 
+sys.path.append('../../CNN/include/')
+
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 from model.resnet import ResNet50
-from data.data import load_set
+from data import get_data_set
 
 JSON_CONFIG = 'config.json'
+train_x, train_y = get_data_set("train")
 
 def train(dir, n_epochs, debug=False):
     # Load Dataset
-    classes_dict, filenames, labels = load_set(dir)
-    n_classes = len(classes_dict)
+    #classes_dict, filenames, labels = load_set(dir)
+    #n_classes = len(classes_dict)
 
     # Build model and load data into it
     model = ResNet50(JSON_CONFIG, n_classes)
-    model.load_data(filenames, labels)
-    model.build()
+    #model.load_data(filenames, labels)
+    model.build()# Not finish
     model.train(n_epochs, debug=debug)
 
 

@@ -1,4 +1,7 @@
 import tensorflow as tf
+import sys
+sys.path.append('../CNN')
+from include.data import get_data_set
 from model.layers import *
 from data.utils import _parse_function, _parse_image, train_preprocess
 from data.data import divide_set, get_images_from_folder, parse_json
@@ -24,14 +27,15 @@ class ResNet50(object):
 
         # load hyperparameters with config file
         # (image), (optimizer), batch_size
-        (image_size, n_channels), (lr, beta1, beta2, epsilon), batch_size = parse_json(config)
+        (image_size, n_channels, n_classes), (lr, beta1, beta2, epsilon), batch_size = parse_json(config)
 
         # image
         self.image_size = image_size
         self.n_channels = n_channels
 
-        # optimizer
-        self.lr = lr
+        self.x, self.y,self. y_pred_cls, self.global_step, self.learning_rate = 0
+
+        # For optimizer
         self.beta1 = beta1
         self.beta2 = beta2
         self.epsilon = epsilon
@@ -56,11 +60,13 @@ class ResNet50(object):
 
 
 
-    def load_data(self, filenames, labels):
+     def load_data(self, filenames, labels):
         '''
         Creates TF Training and Validation Datasets
         '''
 
+        self.images, self.labels = get_data_set("train")
+        
         # Check if each image is classified
         assert len(filenames) == len(labels)
         num_samples = len(filenames)
@@ -77,6 +83,7 @@ class ResNet50(object):
         prefetch-->Set number of smaples
         map--->be used to porcess every images
         """
+
         # Creates Iterator over the Training Set
         with tf.name_scope('train-data'):
             train_dataset = (tf.data.Dataset.from_tensor_slices((tf.constant(train_f), tf.constant(train_l)))
@@ -102,8 +109,7 @@ class ResNet50(object):
 
         # Get Input and Output for Graph Inference
         self.images, self.labels = train_iterator.get_next()
-
-
+       
     # ----------------------------  GRAPH  ----------------------------- #
 
 
@@ -111,8 +117,15 @@ class ResNet50(object):
         '''
         Defining model's graph
         '''
+        with tf.name_scope('main_params'):
+        x = tf.placeholder(tf.float32, shape=[None, self.image_size * self.image_size * self.n_channels], name='Input')
+        y = tf.placeholder(tf.float32, shape=[None, _NUM_CLASSES], name='Output')
+        x_image = tf.reshape(x, [-1, self.image_size * self.image_size, self.n_channels], name='images')
+        global_step = tf.Variable(initial_value=0, trainable=False, name='global_step')
+        learning_rate = tf.placeholder(tf.float32, shape=[], name='learning_rate')
+
         # Stage 1
-        self.conv1 = conv_layer(self.images, 7, self.n_channels, 64, 2, 'scale1')
+        self.conv1 = conv_layer(x_image, 7, self.n_channels, 64, 2, 'scale1')
         self.conv1 = bn(self.conv1, self.is_training, 'scale1')
         self.conv1 = relu(self.conv1)
         self.pool1 = maxpool(self.conv1, name='pool1')
@@ -155,6 +168,12 @@ class ResNet50(object):
         with tf.variable_scope('fc'):
             self.pool2 = avgpool(self.block4_3, 7, 1, 'pool2')
             self.logits = fc_layer(self.pool2, 2048, self.num_classes, 'fc1')
+            drop = tf.layers.dropout(fc, rate=0.5)
+            softmax = tf.layers.dense(inputs=drop, units=_NUM_CLASSES, name=scope.name)
+
+            y_pred_cls = tf.argmax(softmax, axis=1, name ="predicted_labels")
+
+        return x, y, softmax, y_pred_cls, global_step, learning_rate
 
 
     # ---------------------------  TRAINING  ---------------------------- #
@@ -162,14 +181,14 @@ class ResNet50(object):
 
     def loss(self):
         with tf.name_scope('loss'):
-            entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.labels, logits=self.logits)
+            entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.labels, logits=self.y)
             self.loss = tf.reduce_mean(entropy, name='loss')
 
 
     def optimize(self):
         self.global_step = tf.train.get_or_create_global_step()# The number of batches seen by the graph
         self.optimizer = tf.train.AdamOptimizer(
-            learning_rate=self.lr,
+            learning_rate=self.learning_rate,
             beta1=self.beta1,
             beta2=self.beta2,
             epsilon=self.epsilon,
@@ -212,7 +231,7 @@ class ResNet50(object):
         '''
         Build computational graph
         '''
-        self.inference()
+        self.x, self.y, self.labels, self.y_pred_cls, self.global_step, self.learning_rate =self.inference()
         self.loss()
         self.optimize()
         self.average_scalars()
@@ -226,56 +245,82 @@ class ResNet50(object):
         writer.flush()
 
 
-    def train_one_epoch(self, sess, saver, init, writer, epoch, step):
+    def train_one_epoch(self, sess, saver, init, writer, epoch):
         start_time = time.time()
-        sess.run(init)
-        self.training = True
-        total_loss = 0
-        total_acc = 0
-        n_batches = 0
-        try:
-            while True:
-                _, loss_batch, acc_batch, summaries = sess.run([self.optimizer, self.loss, self.accuracy, self.summary_op])
-                writer.add_summary(summaries, global_step=step)
-                total_loss += loss_batch
-                total_acc += acc_batch
-                n_batches += 1
-        except tf.errors.OutOfRangeError:
-            pass
+        for s in range(self.batch_size):
+            batch_xs = train_x[s*self.batch_size: (s+1)*self.batch_size]
+            batch_ys = train_y[s*self.batch_size: (s+1)*self.batch_size]
+            sess.run(init)
+            self.training = True
+            total_loss = 0
+            total_acc = 0
+            n_batches = 0
+            try:
+                while True:
+                   i_global, loss_batch, acc_batch, summaries = sess.run([global_step, self.optimizer, self.loss, self.accuracy, self.summary_op],
+                        feed_dict={x: batch_xs, y: batch_ys, learning_rate: lr(epoch)}))
+                    writer.add_summary(summaries, global_step=step)
+                    total_loss += loss_batch
+                    total_acc += acc_batch
+                    n_batches += 1
+            except tf.errors.OutOfRangeError:
+                pass
+        
+        if s % 10 == 0:
+            avg_loss = total_loss/n_batches
+            avg_acc = total_acc/n_batches/self.batch_size
+            self.write_average_summary(sess, writer, epoch, avg_loss, avg_acc)
+            logging.info('Training loss at epoch {0}: {1}'.format(epoch, avg_loss))
+            logging.info('Training accuracy at epoch {0}: {1}'.format(epoch, avg_acc))
+            logging.info('Took: {0} seconds'.format(time.time() - start_time))
 
-        avg_loss = total_loss/n_batches
-        avg_acc = total_acc/n_batches/self.batch_size
-        self.write_average_summary(sess, writer, epoch, avg_loss, avg_acc)
-        logging.info('Training loss at epoch {0}: {1}'.format(epoch, avg_loss))
-        logging.info('Training accuracy at epoch {0}: {1}'.format(epoch, avg_acc))
-        logging.info('Took: {0} seconds'.format(time.time() - start_time))
-        return step + n_batches
+    test_and_save(i_global, epoch)
 
 
-    def eval_once(self, sess, init, writer, epoch, step):
-        start_time = time.time()
-        sess.run(init)
-        self.training = False
-        total_acc = 0
-        total_loss = 0
-        n_batches = 0
-        try:
-            while True:
-                loss_batch, accuracy_batch, summaries = sess.run([self.loss, self.accuracy, self.summary_op])
-                writer.add_summary(summaries, global_step=step)
-                total_loss += loss_batch
-                total_acc += accuracy_batch
-                n_batches += 1
-        except tf.errors.OutOfRangeError:
-            pass
+    def test_and_save(_global_step, epoch):
+        global global_accuracy
+        global epoch_start
 
-        avg_loss = total_loss/n_batches
-        avg_acc = total_acc/n_batches/self.batch_size
-        self.write_average_summary(sess, writer, epoch, avg_loss, avg_acc)
-        logging.info('Validation loss at epoch {0}: {1} '.format(epoch, avg_loss))
-        logging.info('Validation accuracy at epoch {0}: {1} '.format(epoch, avg_acc))
-        logging.info('Took: {0} seconds'.format(time.time() - start_time))
-        return step + n_batches
+        i = 0
+        predicted_class = np.zeros(shape=len(test_x), dtype=np.int)
+        while i < len(test_x):
+            j = min(i + _BATCH_SIZE, len(test_x))
+            batch_xs = test_x[i:j, :]
+            batch_ys = test_y[i:j, :]
+            predicted_class[i:j] = sess.run(
+                y_pred_cls,
+                feed_dict={x: batch_xs, y: batch_ys, learning_rate: lr(epoch)}
+            )
+            i = j
+
+        correct = (np.argmax(test_y, axis=1) == predicted_class)
+        acc = correct.mean()*100
+        correct_numbers = correct.sum()
+
+        hours, rem = divmod(time() - epoch_start, 3600)
+        minutes, seconds = divmod(rem, 60)
+        mes = "\nEpoch {} - accuracy: {:.2f}% ({}/{}) - time: {:0>2}:{:0>2}:{:05.2f}"
+        print(mes.format((epoch+1), acc, correct_numbers, len(test_x), int(hours), int(minutes), seconds))
+
+        if global_accuracy != 0 and global_accuracy < acc:
+
+            summary = tf.Summary(value=[
+                tf.Summary.Value(tag="Accuracy/test", simple_value=acc),
+            ])
+            train_writer.add_summary(summary, _global_step)
+
+            saver.save(sess, save_path=_SAVE_PATH_OF_CKPT, global_step=_global_step)
+
+            tf.train.write_graph(sess.graph_def, '.', 'minimal_graph.proto', as_text=False)
+
+            mes = "This epoch receive better accuracy: {:.2f} > {:.2f}. Saving session..."
+            print(mes.format(acc, global_accuracy))
+            global_accuracy = acc
+
+        elif global_accuracy == 0:
+            global_accuracy = acc
+
+        print("###########################################################################################################")
 
 
     def train(self, n_epochs, debug=False):
@@ -298,11 +343,11 @@ class ResNet50(object):
             sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver(max_to_keep=100) #Save no.100 model recently.
             # upload existing saves
-            train_step = self.global_step.eval()
-            val_step = train_step
+            #train_step = self.global_step.eval()
+            #val_step = train_step
             for epoch in range(n_epochs):
-                train_step = self.train_one_epoch(sess, saver, self.train_iterator_init_op, train_writer, epoch, train_step)
-                val_step = self.eval_once(sess, self.train_iterator_init_op, val_writer, epoch, val_step)
+                train_step = self.train_one_epoch(sess, saver, self.train_iterator_init_op, train_writer, epoch)
+                #val_step = self.eval_once(sess, self.train_iterator_init_op, val_writer, epoch, val_step)
                 # Save Each Epoch
                 save_path = saver.save(sess, "training/epoch{}/model.ckpt".format(epoch))
         writer.close()
@@ -376,3 +421,15 @@ class ResNet50(object):
 
         # Return Prediction for further Results Interpretation
         return predictions
+
+    def lr(epoch):
+        learning_rate = 1e-3
+        if epoch > 80:
+            learning_rate *= 0.5e-3
+        elif epoch > 60:
+            learning_rate *= 1e-3
+        elif epoch > 40:
+            learning_rate *= 1e-2
+        elif epoch > 20:
+            learning_rate *= 1e-1
+        return learning_rate
