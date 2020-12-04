@@ -340,7 +340,7 @@ class ResNet50(object):
             if debug:
                 sess = tf_debug.LocalCLIDebugWrapperSession(sess)
 
-            sess.run(tf.global_variables_initializer())
+            #sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver(max_to_keep=100) #Save no.100 model recently.
             # upload existing saves
             #train_step = self.global_step.eval()
