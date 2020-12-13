@@ -1,7 +1,4 @@
 import tensorflow as tf
-import os
-import sys
-
 from layers import *
 from data_Resnet50 import divide_set, get_images_from_folder, parse_json
 
@@ -31,8 +28,7 @@ class ResNet50(object):
         # image
         self.image_size = image_size
         self.n_channels = n_channels
-
-        self.x, self.y,self. y_pred_cls, self.global_step, self.learning_rate = 0
+        self.learning_rate = lr
 
         # For optimizer
         self.beta1 = beta1
@@ -66,7 +62,7 @@ class ResNet50(object):
         '''
         with tf.name_scope('main_params'):
             x = tf.placeholder(tf.float32, shape=[None, self.image_size * self.image_size * self.n_channels], name='Input')
-            y = tf.placeholder(tf.float32, shape=[None, _NUM_CLASSES], name='Output')
+            y = tf.placeholder(tf.float32, shape=[None, self.num_classes], name='Output')
             x_image = tf.reshape(x, [-1, self.image_size * self.image_size, self.n_channels], name='images')
             global_step = tf.Variable(initial_value=0, trainable=False, name='global_step')
             learning_rate = tf.placeholder(tf.float32, shape=[], name='learning_rate')

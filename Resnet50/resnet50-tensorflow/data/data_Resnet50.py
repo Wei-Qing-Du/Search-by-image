@@ -144,6 +144,7 @@ def parse_json(configfile) -> tuple:
         try:
             image_size = image['image_size']
             n_channels = image['n_channels']
+            n_classes = image['n_classes']
         except:
             print("Failed parsing JSON: NO 'image_size', 'n_channels' inside 'image'")
             exit()
@@ -163,7 +164,7 @@ def parse_json(configfile) -> tuple:
             print("Failed parsing JSON: NO 'batch_size' inside 'training'")
             exit()
 
-        return (image_size, n_channels), (lr, beta1, beta2, epsilon), batch_size
+        return (image_size, n_channels, n_classes), (lr, beta1, beta2, epsilon), batch_size
 
 
 def get_images_from_folder(folder) -> list:

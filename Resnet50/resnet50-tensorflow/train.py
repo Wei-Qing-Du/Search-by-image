@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append(os.getcwd() +"..\\..\\CNN")
+sys.path.append(os.getcwd() +"\\..\\..\\CNN")
 sys.path.append(os.getcwd() + '\\model')
 sys.path.append(os.getcwd() + '\\data')
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
