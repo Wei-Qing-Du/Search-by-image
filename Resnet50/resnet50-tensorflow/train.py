@@ -2,7 +2,7 @@ import argparse
 import sys
 import os
 
-sys.path.append('../../CNN/include/')
+#sys.path.append('../../CNN/include/')
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 

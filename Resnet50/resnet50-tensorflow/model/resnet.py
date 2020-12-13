@@ -1,10 +1,9 @@
 import tensorflow as tf
+import os
 import sys
-sys.path.append('../CNN')
-from include.data import get_data_set
+sys.path.append(os.getcwd() + '\\Resnet50\\resnet50-tensorflow\\data')
 from model.layers import *
-from data.utils import _parse_function, _parse_image, train_preprocess
-from data.data import divide_set, get_images_from_folder, parse_json
+from data_Resnet50 import divide_set, get_images_from_folder, parse_json
 
 from tensorflow.python import debug as tf_debug
 
@@ -57,58 +56,6 @@ class ResNet50(object):
         logging.info("  IMAGE SIZE: {}, CHANNELS_NUMBER: {}  ".format(self.image_size, self.n_channels))
         logging.info("                TRAINING               ")
         logging.info("             BATCH SIZE: {}            ".format(self.batch_size))
-
-
-
-     def load_data(self, filenames, labels):
-        '''
-        Creates TF Training and Validation Datasets
-        '''
-
-        self.images, self.labels = get_data_set("train")
-        
-        # Check if each image is classified
-        assert len(filenames) == len(labels)
-        num_samples = len(filenames)
-
-        # Divides Dataset in two parts: Training and Validation
-        train_f, train_l, valid_f, valid_l = divide_set(filenames, labels)
-
-        # Define lambda function for parsing images and augmentation
-        parse_fn = lambda f, l: _parse_function(f, l, self.n_channels, self.image_size)
-        train_fn = lambda f, l: train_preprocess(f, l)
-        """
-        Content of tf.data.Dataset.from_tensor_slices
-        shuffle-->disorganize data
-        prefetch-->Set number of smaples
-        map--->be used to porcess every images
-        """
-
-        # Creates Iterator over the Training Set
-        with tf.name_scope('train-data'):
-            train_dataset = (tf.data.Dataset.from_tensor_slices((tf.constant(train_f), tf.constant(train_l)))
-                .shuffle(num_samples)
-                .map(parse_fn, num_parallel_calls=4)
-                .batch(self.batch_size)
-                .prefetch(1)
-            )
-
-            train_iterator = train_dataset.make_initializable_iterator()
-            self.train_iterator_init_op = train_iterator.initializer
-
-        # Creates Iterator over the Validation Set
-        with tf.name_scope('valid-data'):
-            valid_dataset = (tf.data.Dataset.from_tensor_slices((tf.constant(valid_f), tf.constant(valid_l)))
-                .map(parse_fn, num_parallel_calls=4)
-                .batch(self.batch_size)
-                .prefetch(1)
-            )
-
-            valid_iterator = valid_dataset.make_initializable_iterator()
-            self.valid_iterator_init_op = valid_iterator.initializer
-
-        # Get Input and Output for Graph Inference
-        self.images, self.labels = train_iterator.get_next()
        
     # ----------------------------  GRAPH  ----------------------------- #
 
@@ -118,17 +65,17 @@ class ResNet50(object):
         Defining model's graph
         '''
         with tf.name_scope('main_params'):
-        x = tf.placeholder(tf.float32, shape=[None, self.image_size * self.image_size * self.n_channels], name='Input')
-        y = tf.placeholder(tf.float32, shape=[None, _NUM_CLASSES], name='Output')
-        x_image = tf.reshape(x, [-1, self.image_size * self.image_size, self.n_channels], name='images')
-        global_step = tf.Variable(initial_value=0, trainable=False, name='global_step')
-        learning_rate = tf.placeholder(tf.float32, shape=[], name='learning_rate')
+            x = tf.placeholder(tf.float32, shape=[None, self.image_size * self.image_size * self.n_channels], name='Input')
+            y = tf.placeholder(tf.float32, shape=[None, _NUM_CLASSES], name='Output')
+            x_image = tf.reshape(x, [-1, self.image_size * self.image_size, self.n_channels], name='images')
+            global_step = tf.Variable(initial_value=0, trainable=False, name='global_step')
+            learning_rate = tf.placeholder(tf.float32, shape=[], name='learning_rate')
 
-        # Stage 1
-        self.conv1 = conv_layer(x_image, 7, self.n_channels, 64, 2, 'scale1')
-        self.conv1 = bn(self.conv1, self.is_training, 'scale1')
-        self.conv1 = relu(self.conv1)
-        self.pool1 = maxpool(self.conv1, name='pool1')
+            # Stage 1
+            self.conv1 = conv_layer(x_image, 7, self.n_channels, 64, 2, 'scale1')
+            self.conv1 = bn(self.conv1, self.is_training, 'scale1')
+            self.conv1 = relu(self.conv1)
+            self.pool1 = maxpool(self.conv1, name='pool1')
 
         """
         Every stages have different number of blocks that can reference from https://zhuanlan.zhihu.com/p/79378841
@@ -244,39 +191,6 @@ class ResNet50(object):
         writer.add_summary(summaries, global_step=epoch)
         writer.flush()
 
-
-    def train_one_epoch(self, sess, saver, init, writer, epoch):
-        start_time = time.time()
-        for s in range(self.batch_size):
-            batch_xs = train_x[s*self.batch_size: (s+1)*self.batch_size]
-            batch_ys = train_y[s*self.batch_size: (s+1)*self.batch_size]
-            sess.run(init)
-            self.training = True
-            total_loss = 0
-            total_acc = 0
-            n_batches = 0
-            try:
-                while True:
-                   i_global, loss_batch, acc_batch, summaries = sess.run([global_step, self.optimizer, self.loss, self.accuracy, self.summary_op],
-                        feed_dict={x: batch_xs, y: batch_ys, learning_rate: lr(epoch)}))
-                    writer.add_summary(summaries, global_step=step)
-                    total_loss += loss_batch
-                    total_acc += acc_batch
-                    n_batches += 1
-            except tf.errors.OutOfRangeError:
-                pass
-        
-        if s % 10 == 0:
-            avg_loss = total_loss/n_batches
-            avg_acc = total_acc/n_batches/self.batch_size
-            self.write_average_summary(sess, writer, epoch, avg_loss, avg_acc)
-            logging.info('Training loss at epoch {0}: {1}'.format(epoch, avg_loss))
-            logging.info('Training accuracy at epoch {0}: {1}'.format(epoch, avg_acc))
-            logging.info('Took: {0} seconds'.format(time.time() - start_time))
-
-    test_and_save(i_global, epoch)
-
-
     def test_and_save(_global_step, epoch):
         global global_accuracy
         global epoch_start
@@ -322,6 +236,36 @@ class ResNet50(object):
 
         print("###########################################################################################################")
 
+    def train_one_epoch(self, sess, saver, init, writer, epoch):
+        start_time = time.time()
+        for s in range(self.batch_size):
+            batch_xs = train_x[s*self.batch_size: (s+1)*self.batch_size]
+            batch_ys = train_y[s*self.batch_size: (s+1)*self.batch_size]
+            sess.run(init)
+            self.training = True
+            total_loss = 0
+            total_acc = 0
+            n_batches = 0
+            try:
+                while True:
+                    i_global, loss_batch, acc_batch, summaries = sess.run([global_step, self.optimizer, self.loss, self.accuracy, self.summary_op],
+                        feed_dict={x: batch_xs, y: batch_ys, learning_rate: lr(epoch)})
+                    writer.add_summary(summaries, global_step=step)
+                    total_loss += loss_batch
+                    total_acc += acc_batch
+                    n_batches += 1
+            except tf.errors.OutOfRangeError:
+                pass
+        
+        if s % 10 == 0:
+            avg_loss = total_loss/n_batches
+            avg_acc = total_acc/n_batches/self.batch_size
+            self.write_average_summary(sess, writer, epoch, avg_loss, avg_acc)
+            logging.info('Training loss at epoch {0}: {1}'.format(epoch, avg_loss))
+            logging.info('Training accuracy at epoch {0}: {1}'.format(epoch, avg_acc))
+            logging.info('Took: {0} seconds'.format(time.time() - start_time))
+
+        test_and_save(i_global, epoch)
 
     def train(self, n_epochs, debug=False):
         '''
