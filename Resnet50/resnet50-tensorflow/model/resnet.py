@@ -1,8 +1,8 @@
 import tensorflow as tf
 import os
 import sys
-sys.path.append(os.getcwd() + '\\Resnet50\\resnet50-tensorflow\\data')
-from model.layers import *
+
+from layers import *
 from data_Resnet50 import divide_set, get_images_from_folder, parse_json
 
 from tensorflow.python import debug as tf_debug
@@ -16,7 +16,7 @@ class ResNet50(object):
     ResNet 50 Model
     '''
 
-    def __init__(self, config, n_classes):
+    def __init__(self, config):
         # Config Logging and log TF Version
         logging.basicConfig(level=logging.INFO)
         logging.info("-----------------------------------------")
