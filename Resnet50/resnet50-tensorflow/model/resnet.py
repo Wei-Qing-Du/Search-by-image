@@ -1,4 +1,5 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior() 
 from layers import *
 from data_Resnet50 import divide_set, get_images_from_folder, parse_json
 

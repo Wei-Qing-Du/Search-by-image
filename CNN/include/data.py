@@ -5,8 +5,10 @@ from urllib.request import urlretrieve
 import tarfile
 import zipfile
 import sys
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior() 
 from keras.preprocessing.image import ImageDataGenerator #For data augmentation
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from scipy.misc import toimage
 
 def get_data_set(name="train"):
