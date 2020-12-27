@@ -61,10 +61,11 @@ class ResNet50(object):
         '''
         Defining model's graph
         '''
+        tf.reset_default_graph()
         with tf.name_scope('main_params'):
-            x = tf.placeholder(tf.float32, shape=[None, self.image_size * self.image_size * self.n_channels], name='Input')
+            x = tf.placeholder(tf.float32, shape=[1, self.image_size, self.image_size, self.n_channels], name='Input')
             y = tf.placeholder(tf.float32, shape=[None, self.num_classes], name='Output')
-            x_image = tf.reshape(x, [-1, self.image_size * self.image_size, self.n_channels], name='images')
+            x_image = tf.reshape(x, [-1, self.image_size, self.image_size, self.n_channels], name='images')
             global_step = tf.Variable(initial_value=0, trainable=False, name='global_step')
             learning_rate = tf.placeholder(tf.float32, shape=[], name='learning_rate')
 
