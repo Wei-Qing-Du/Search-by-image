@@ -25,6 +25,7 @@ def get_data_set(name="train"):
     x = None
     y = None
 
+    
     maybe_download_and_extract()
 
     folder_name = "cifar_10"
@@ -32,8 +33,8 @@ def get_data_set(name="train"):
     f = open('./data_set/'+folder_name+'/batches.meta', 'rb')
     f.close()
     datagen = ImageDataGenerator( rotation_range=90,
-                 width_shift_range=0.1, height_shift_range=0.1,
-                 horizontal_flip=True)
+                width_shift_range=0.1, height_shift_range=0.1,
+                horizontal_flip=True)
 
     if name is "train":
         for i in range(5):
@@ -43,14 +44,17 @@ def get_data_set(name="train"):
 
             _X = datadict["data"]
             _Y = datadict['labels']
-
+            new_im = np.zeros((1000, 3, 279, 279))
+            #_X = np.resize(_X, (279, 279))
             _X = np.array(_X, dtype=float) / 255.0
             _X = _X.reshape([-1, 3, 32, 32])
+            for i in range(1000):
+                new_im[i][0] = np.resize(_X[i][0], (279, 279))
             _X = _X.transpose([0, 2, 3, 1])
             datagen.fit(_X)
-            #Show(datagen, _X, _Y)
-            _X = _X.reshape(-1, 32*32*3)
-
+            Show(datagen, _X, _Y)
+            #_X = _X.reshape(-1, 279*279*3)
+        
             if x is None:
                 x = _X
                 y = _Y
