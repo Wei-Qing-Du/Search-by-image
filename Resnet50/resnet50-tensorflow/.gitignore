@@ -1,9 +1,0 @@
-# Cache Files
-idea/
-__pycache__/
-.DS_Store
-
-# Working Directories
-logs/
-training/
-
