@@ -63,6 +63,7 @@ class ResNet(object):
             else :
                 residual_block = bottle_resblock
 
+            #residual_list presented amount of conv layers for every block 
             residual_list = get_residual_layer(self.res_n)
 
             ch = 32 # paper is 64

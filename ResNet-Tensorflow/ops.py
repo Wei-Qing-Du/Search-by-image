@@ -79,6 +79,7 @@ def bottle_resblock(x_init, channels, is_training=True, use_bias=True, downsampl
 
 
 def get_residual_layer(res_n) :
+    #It can reference paper from https://arxiv.org/pdf/1512.03385.pdf
     x = []
 
     if res_n == 18 :
