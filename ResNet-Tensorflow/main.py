@@ -1,81 +1,103 @@
-from ResNet import ResNet
-import argparse
-from utils import *
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+from tensorflow.python.keras import backend as K
+from tensorflow.python.keras.models import Model
+from tensorflow.python.keras.layers import Flatten, Dense, Dropout
+from tensorflow.python.keras.applications.resnet50 import ResNet50
+from tensorflow.python.keras.optimizers import Adam
+from tensorflow.python.keras.preprocessing.image import ImageDataGenerator
+import os
+import datetime
+import tensorflow as tf
 
-"""parsing and configuration"""
-def parse_args():
-    desc = "Tensorflow implementation of ResNet"
-    parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('--phase', type=str, default='train', help='train or test ?')
-    parser.add_argument('--dataset', type=str, default='tiny', help='[cifar10, cifar100, mnist, fashion-mnist, tiny')
+DATASET_PATH  = 'D:\\Search-by-image\\data_set\\cifar_10'
 
+IMAGE_SIZE = (32, 32)
 
-    parser.add_argument('--epoch', type=int, default=82, help='The number of epochs to run')
-    parser.add_argument('--batch_size', type=int, default=8, help='The size of batch per gpu')
-    parser.add_argument('--res_n', type=int, default=18, help='18, 34, 50, 101, 152')
+INPUT_SHAPE = (32, 32, 3)
 
-    parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
+NUM_CLASSES = 10
 
-    parser.add_argument('--checkpoint_dir', type=str, default='checkpoint',
-                        help='Directory name to save the checkpoints')
-    parser.add_argument('--log_dir', type=str, default='logs',
-                        help='Directory name to save training logs')
+BATCH_SIZE = 32
 
-    return check_args(parser.parse_args())
+FREEZE_LAYERS = 2
 
-"""checking arguments"""
-def check_args(args):
-    # --checkpoint_dir
-    check_folder(args.checkpoint_dir)
+NUM_EPOCHS = 40
 
-    # --result_dir
-    check_folder(args.log_dir)
+WEIGHTS_FINAL = 'model-resnet50-final.h5'
 
-    # --epoch
-    try:
-        assert args.epoch >= 1
-    except:
-        print('number of epochs must be larger than or equal to one')
+logdir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
-    # --batch_size
-    try:
-        assert args.batch_size >= 1
-    except:
-        print('batch size must be larger than or equal to one')
-    return args
+if not os.path.isdir(".\\logs"):
+    os.mkdir(".\\logs")
+    
+tensorboard = tf.keras.callbacks.TensorBoard(
+    log_dir=logdir,
+    histogram_freq=0,
+    write_images=True,
+    update_freq="epoch")
 
+callbacks = [
+    tensorboard
+]
+assert(os.path.isdir(DATASET_PATH))
 
-"""main"""
-def main():
-    # parse arguments
-    args = parse_args()
-    if args is None:
-      exit()
+# 透過 data augmentation to make train and test data
+train_datagen = ImageDataGenerator(rotation_range=40,
+                                   width_shift_range=0.2,
+                                   height_shift_range=0.2,
+                                   shear_range=0.2,
+                                   zoom_range=0.2,
+                                   channel_shift_range=10,
+                                   horizontal_flip=True,
+                                   fill_mode='nearest')
+train_batches = train_datagen.flow_from_directory(DATASET_PATH + '/train1',
+                                                  target_size=IMAGE_SIZE,
+                                                  interpolation='bicubic',
+                                                  class_mode='categorical',
+                                                  shuffle=True,
+                                                  batch_size=BATCH_SIZE)
 
-    # open session
-    with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-        cnn = ResNet(sess, args)
+valid_datagen = ImageDataGenerator()
+valid_batches = valid_datagen.flow_from_directory(DATASET_PATH + '/test1',
+                                                  target_size=IMAGE_SIZE,
+                                                  interpolation='bicubic',
+                                                  class_mode='categorical',
+                                                  shuffle=False,
+                                                  batch_size=BATCH_SIZE)
 
-        # build graph
-        cnn.build_model()
+# Output class index
+for cls, idx in train_batches.class_indices.items():
+    print('Class #{} = {}'.format(idx, cls))
 
-        # show network architecture
-        #show_all_variables()
+net = ResNet50(include_top=False, weights='imagenet', input_tensor=None,
+               input_shape=INPUT_SHAPE,  classes=NUM_CLASSES)
+x = net.output
+x = Flatten()(x)
 
-        if args.phase == 'train' :
-            # launch the graph in a session
-            cnn.train()
+# add DropOut layer
+x = Dropout(0.5)(x)
 
-            print(" [*] Training finished! \n")
+# Use softmax
+output_layer = Dense(NUM_CLASSES, activation='softmax', name='softmax')(x)
 
-            cnn.test()
-            print(" [*] Test finished!")
+net_final = Model(inputs=net.input, outputs=output_layer)
+for layer in net_final.layers[:FREEZE_LAYERS]:
+    layer.trainable = False
+for layer in net_final.layers[FREEZE_LAYERS:]:
+    layer.trainable = True
 
-        if args.phase == 'test' :
-            cnn.test()
-            print(" [*] Test finished!")
+# Use Adam optimizer
+net_final.compile(optimizer=Adam(lr=1e-5),
+                  loss='categorical_crossentropy', metrics=['accuracy'])
 
-if __name__ == '__main__':
-    main()
+# Whole network
+print(net_final.summary())
+
+# Training model
+net_final.fit_generator(train_batches,
+                        steps_per_epoch = train_batches.samples // BATCH_SIZE,
+                        validation_data = valid_batches,
+                        validation_steps = valid_batches.samples // BATCH_SIZE,
+                        epochs = NUM_EPOCHS,
+                        callbacks = callbacks)
+
+net_final.save(WEIGHTS_FINAL)
