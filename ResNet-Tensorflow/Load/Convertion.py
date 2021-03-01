@@ -6,13 +6,21 @@ import argparse
 import os
 import threading as th
 
+NUM_CLASSES = 10
+
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--p', type=str, help='Enter dataset')
 parser.add_argument('--typ', type=str, help='Enter train or test')
 arg = parser.parse_args()
 
 datSetpath = arg.p
-datSetpath +='/'
+
+train = "train1"
+test = "test1"
+if arg.typ == "train":
+    datSetpath += (train + "/")
+else:
+    datSetpath += (test + "/")
 
 def unpickle(file):
     fo = open(file, 'rb')
@@ -20,33 +28,45 @@ def unpickle(file):
     fo.close()
     return dict
 
-def CovetimgfromDataSet(Type = "train",  index = 1): 
-    if Type == "train":
-        dataName = "data_batch_" + str(index)  
-        Xtr = unpickle(datSetpath + '/' + dataName)
-        print( dataName + " is loading... from Thread id:" + str(os.getpid())+"\n")
+def buildfolder(path):
+    for i in range(NUM_CLASSES):
+        if not os.path.isdir(path + str(i)):
+            os.mkdir(path + str(i))
 
+def CovetimgfromDataSet(Type = "train",  index = 1):    
+    if Type == "train":
+        dataName = "/data_batch_" + str(index)  
+        Xtr = unpickle(arg.p + dataName)
+        print( dataName + " is loading... from Thread id:" + str(th.current_thread())+"\n")
+        
         for i in range(0, 10000):
             img = np.reshape(Xtr['data'][i], (3, 32, 32))
             img = img.transpose(1, 2, 0)
-            if  not os.path.isdir(datSetpath + 'train'):
-                os.mkdir(datSetpath + 'train')
-            picName = 'train/' + str(Xtr['labels'][i]) + '_' + str(i + (index - 1)*10000) + '.jpg'
+            
+            if  not os.path.isdir(datSetpath):
+                os.mkdir(datSetpath)
+                
+            buildfolder(datSetpath)
+            cls = str(Xtr['labels'][i])
+            picName = cls+ "/" +str(Xtr['labels'][i]) + '_' + str(i + (index - 1)*10000) + '.jpg'
             imgpath = datSetpath + picName
             save_img(imgpath, img)
             imgpath = ""
-            print( dataName + " is loaded... from Thread id:" + str(os.getpid())+"\n")
+            print( dataName + " is loaded... from Thread id:" + str(th.current_thread())+"\n")
         print("train_batch loaded.")
-
     else:
         print("test_batch is loading...")
-        testXtr = unpickle(datSetpath + "test_batch")
+        testXtr = unpickle(arg.p + "test_batch")
         for i in range(0, 10000):
             img = np.reshape(testXtr['data'][i], (3, 32, 32))
             img = img.transpose(1, 2, 0)
-            if not os.path.isdir(datSetpath + 'test'):
-                os.mkdir(datSetpath + 'test')
-            picName = 'test/' + str(testXtr['labels'][i]) + '_' + str(i) + '.jpg'
+            
+            if  not os.path.isdir(datSetpath):
+                os.mkdir(datSetpath)
+                
+            buildfolder(datSetpath)
+            cls = str(testXtr['labels'][i])
+            picName = cls+ "/" +str(testXtr['labels'][i]) + '_' + str(i + (index - 1)*10000) + '.jpg'
             imgpath = datSetpath + picName
             save_img(imgpath, img)
             imgpath = ""
@@ -54,10 +74,11 @@ def CovetimgfromDataSet(Type = "train",  index = 1):
 
 def main(typ):
     t_list = []
-    
+   
     if typ == "train":
         t1 = th.Thread(target = CovetimgfromDataSet, args=("train", 1))
         t_list.append(t1)
+        
         t2 = th.Thread(target = CovetimgfromDataSet, args=("train", 2))
         t_list.append(t2)
         t3 = th.Thread(target = CovetimgfromDataSet, args=("train", 3))
@@ -66,6 +87,7 @@ def main(typ):
         t_list.append(t4)
         t5 = th.Thread(target = CovetimgfromDataSet, args=("train", 5))
         t_list.append(t5)
+        
     
         for t in t_list:
             t.start()
