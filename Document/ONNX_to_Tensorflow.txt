@@ -31,3 +31,5 @@ python -m tf2onnx.convert
 python -m tf2onnx.convert --input D:/Search-by-image/frozen.pb --inputs main_params/Input:0[1,3072] --outputs predicted_labels:0[0,9] --output D:/Search-by-image/model.onnx --fold_const
 
 =====================================================Tensorflow-keras to ONNX=======================================================================================================
+pip install onnxmltools #Include onnx and keras2onnx
+pip install onnxruntime #Run onnx
