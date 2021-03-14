@@ -1,3 +1,4 @@
+import sys
 import win_unicode_console           
 win_unicode_console.enable()          #
 import os
@@ -6,7 +7,9 @@ import keras2onnx
 import onnx                          
 from tensorflow.python.keras.models import load_model
 
-model = load_model("../model-resnet50-final.h5")
+inputpath = sys.argv[1] #"../model-resnet50-final.h5"
+outputpath = sys.argv[2] #'../model.onnx'
+
+model = load_model(inputpath)
 onnx_model = keras2onnx.convert_keras(model, model.name)
-temp_model_file = '../model.onnx'
-onnx.save_model(onnx_model, temp_model_file)
+onnx.save_model(onnx_model, outputpath)

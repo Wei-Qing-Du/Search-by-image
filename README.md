@@ -6,6 +6,7 @@ We try to use deep learning Deep Convolutional Neural Networks to catch image fe
 Our project referenced **Image Retrieval[1]** and **Tensorflow-cifar-10[2]** to training the data.
 >* [1]CH Kuo, YH Chou, PC Chang, "Using Deep Convolutional Neural Networks for Image Retrieval", Electronic Imaging, 2016.
 >* [2][Tensorflow-cifar-10.](https://github.com/exelban/tensorflow-cifar-10)
+>* [Use keras](https://keras.io/api/applications/)
 # Environment
 >* WINDOWS 10.
 >* Python3.x.
@@ -15,10 +16,15 @@ Our project referenced **Image Retrieval[1]** and **Tensorflow-cifar-10[2]** to 
 >   * Use gpu can speed up training.
 >* [Open Neural Network Exchange(ONNX)](https://github.com/onnx/onnx)  
 >   * Tool for converting tensorflow to ONNX.
+>* Keras2ONNX.
 >* [Cifar-10](https://www.cs.toronto.edu/~kriz/cifar.html) for training and testing.  
 
 Cifar-10 convolutional network implementation example using TensorFlow library.
 ![](https://trello-attachments.s3.amazonaws.com/5e11b4a007fc4d333fd1819b/1063x532/7ffdae91082a8a57c9e9649ac90b9ee0/image.png)
+
+We used Resnet-50 to train model.The accuracy is better than traditional CNN.
+![](Image/Resnet-50_accy.png)
+
 
 # Workflow
 
@@ -26,14 +32,40 @@ Frist, we need to convert to ONNX model after train to tensorflow model, but not
 After convert to ONNX model we wrote [python code](predict_test.py) to run it and use C# to connect to the pyhton to recognize image type.
 ![](WorkFlow/WorkFlow.jpg)
 
-# Usage
-## Prepare ONNX and OpenCV with C#
+# Usage for ResNet50
+### Keras to ONNX
+#### ONNX related installation 
+```
+pip install onnxmltools #Include onnx and keras2onnx
+pip install onnxruntime #Run onnx
+```
+#### Keras(x.h5) to ONNX model
+```
+python ConvertONNX/Convert "your h5 model path" "onnx model output path"
+```
+For example
+```
+python ConvertONNX/Convert ../model-resnet50-final.h5 ../model.onnx
+```
+#### Convert train and test images from each batch files
+```
+python Load/Convertion --p Enter dataset --type Enter train or test
+```
+# Usage for CNN
+### Prepare tensorflow, keras and GPU
+```
+pip install tensorflow=1.x
+pip install keras=x.xx
+conda install cudatoolkit=xx
+conda install cudnn
+```
+### Prepare ONNX and OpenCV with C#
 ```
 Install-Package OpenCvSharp4 -Version 4.2.0.20200208
 Install-Package Microsoft.ML.OnnxRuntime -Version 1.2.0
 ```
-## Tensorflow to ONNX
-### Tool to Freeze Graph
+### Tensorflow to ONNX
+#### Tool to Freeze Graph
 First, make proto file and ckpt file.
 ```
 saver.save(sess, save_path=_SAVE_PATH_OF_CKPT, global_step=_global_step)
@@ -69,16 +101,16 @@ python -m tf2onnx.convert
     [--continue_on_error]
     [--verbose]
 ```
-### Video
-[![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://streamable.com/s/1ap44/jawofd)
-
 # Accuracy 
-Best accurancy what I receive was ```78-79%``` on test data set. We'll use **data augmentation** and other network, for example, **ResNet** in the future, 
+Best accurancy what I receive was ```78-79%``` on test data set. 
 
 This repository is just example of implemantation convolution neural network. Here I implement a simple neural network for image recognition with good if you want to get more that 80% accuracyaccuracy.
 
+We used ResNet-50 to train model with data augmentaion, we got ```86%``` accuracy. 
+
 
 # Result
+## CNN
 By default network will be run 60 epoch (60 times on all training data set).  
 You can change that by editing ```_EPOCH``` in ```train.py``` file.
 
@@ -167,10 +199,21 @@ Restored checkpoint from: ./tensorboard/cifar-10-v1.0.0/-23460
 
 Accuracy on Test-Set: 78.81% (7881 / 10000)
 ```
+## ResNet50
+By default network will be run 150 epoch (150 times on all training data set).  
+You can change that by editing ```NUM_EPOCHS``` in ```main.py``` file.
+
+Also by default it process 64 files in each step.  
+If you training network on CPU or GPU (lowest that 1060 6GB) change ```BATCH_SIZE``` in ```main.py``` to a smaller value.
 
 Please send me (or open issue) if you don't understand or encounter difficulties.
 
 
+### v1.0
+```
+-Add ResNet50 to train model.
+-Import keras.
+```
 ### v0.0
 ```
 -  Frist Realse 

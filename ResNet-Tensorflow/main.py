@@ -16,11 +16,11 @@ INPUT_SHAPE = (32, 32, 3)
 
 NUM_CLASSES = 10
 
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 FREEZE_LAYERS = 2
 
-NUM_EPOCHS = 40
+NUM_EPOCHS = 150
 
 WEIGHTS_FINAL = 'model-resnet50-final.h5'
 
@@ -76,8 +76,11 @@ x = Flatten()(x)
 # add DropOut layer
 x = Dropout(0.5)(x)
 
+#Fully connected layer 1
+fc1 = tf.keras.layers.Dense(100, activation='relu', name="AddedDense1")(x)
+
 # Use softmax
-output_layer = Dense(NUM_CLASSES, activation='softmax', name='softmax')(x)
+output_layer = Dense(NUM_CLASSES, activation='softmax', name='softmax')(fc1)
 
 net_final = Model(inputs=net.input, outputs=output_layer)
 for layer in net_final.layers[:FREEZE_LAYERS]:
@@ -86,7 +89,7 @@ for layer in net_final.layers[FREEZE_LAYERS:]:
     layer.trainable = True
 
 # Use Adam optimizer
-net_final.compile(optimizer=Adam(lr=1e-5),
+net_final.compile(optimizer=Adam(lr=0.00001),
                   loss='categorical_crossentropy', metrics=['accuracy'])
 
 # Whole network
