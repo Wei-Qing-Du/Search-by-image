@@ -7,6 +7,7 @@ Our project referenced **Image Retrieval[1]** and **Tensorflow-cifar-10[2]** to 
 >* [1]CH Kuo, YH Chou, PC Chang, "Using Deep Convolutional Neural Networks for Image Retrieval", Electronic Imaging, 2016.
 >* [2][Tensorflow-cifar-10.](https://github.com/exelban/tensorflow-cifar-10)
 >* [Use keras](https://keras.io/api/applications/)
+>* [5] He, K., Zhang, X., Ren, S., and Sun, J., “Deep residual learning for image recognition,” in Proceedings of the IEEE Computer Society Conference on Computer Vision and Pattern Recognition, pp. 770-778, 2016.
 # Environment
 >* WINDOWS 10.
 >* Python3.x.
@@ -17,7 +18,7 @@ Our project referenced **Image Retrieval[1]** and **Tensorflow-cifar-10[2]** to 
 >* [Open Neural Network Exchange(ONNX)](https://github.com/onnx/onnx)  
 >   * Tool for converting tensorflow to ONNX.
 >* Keras2ONNX.
->* [Cifar-10](https://www.cs.toronto.edu/~kriz/cifar.html) for training and testing.  
+>* [Cifar-10](https://www.cs.toronto.edu/~kriz/cifar.html) for training and testing.
 
 Cifar-10 convolutional network implementation example using TensorFlow library.
 ![](https://trello-attachments.s3.amazonaws.com/5e11b4a007fc4d333fd1819b/1063x532/7ffdae91082a8a57c9e9649ac90b9ee0/image.png)
